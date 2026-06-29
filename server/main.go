@@ -30,10 +30,10 @@ func main() {
 
 	// Mutex for the server
 	mux := http.NewServeMux()
-	appHandler := http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot)))
+	appHandler := http.FileServer(http.Dir(filepathRoot))
 
 	// Handle the front page
-	mux.Handle("/app/", appHandler)
+	mux.Handle("/", appHandler)
 
 	// create the server object
 	srv := http.Server{
