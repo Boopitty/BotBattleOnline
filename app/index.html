@@ -5,28 +5,39 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Bot Battle</title>
 		<link rel="stylesheet" href="styles.css" />
+		<script src="app.js" defer></script>
 	</head>
 	<body>
 		<div class="nav-bar">
 			<h1>
-				Bot Battle
-				<span class="subtitle">Clank 'em up!</span>
+				Bot Battle!
+				<span class="subtitle">--Robot Arena--</span>
 			</h1>
 		</div>
-		<div id="command section" style="display: block">
+		<div id="game_widget">
+			<iframe>
+				
+			</iframe>
+			<p>
+				I'll put the game here
+			</p>
+		</div>
+		<div id="command-section" style="display: block">
 			<h2>Enter a command</h2>
-			<form id="command input">
+			<form id="command-form">
 				<input
 					class="input-area"
 					type="text"
 					id="command"
-					placeholder="Command placeholder"
+					placeholder="Type 'help' to see commands."
 					required
 				/>
 				<div class="button-container">
 					<button type="submit">Enter</button>
 				</div>
 			</form>
+		</div>
+		<div id="command-log" style="display: block">
 		</div>
 	</body>
 </html>
