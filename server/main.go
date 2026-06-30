@@ -36,7 +36,7 @@ func main() {
 	mux.Handle("/", appHandler)
 
 	// create the server object
-	srv := http.Server{
+	srv := &http.Server{
 		Handler:      mux,
 		Addr:         ":" + port,
 		WriteTimeout: 30 * time.Second,
@@ -45,7 +45,6 @@ func main() {
 
 	// this blocks forever, until the server
 	// has an unrecoverable error
-	fmt.Printf("server started on %v\n", port)
-	err = srv.ListenAndServe()
-	log.Fatal(err)
+	fmt.Printf("server started on http://localhost:%s\n", port)
+	log.Fatal(srv.ListenAndServe())
 }
