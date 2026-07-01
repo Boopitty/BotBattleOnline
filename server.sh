@@ -1,2 +1,2 @@
 # Run the server
-go run ./server/main.go
+go run ./server

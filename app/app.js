@@ -7,24 +7,8 @@ async function command() {
     const command = document.getElementById('command').value;
     console.log(command)
     try{
-        
-        await commandHandler(command);
-    } catch (error) {
-        alert(`Error: ${error.message}`);
-    }
-}
-
-function commandHandler(log) {
-    const text = document.createElement('div');
-    text.textContent = log;
-
-    container = document.getElementById("command-log");
-    container.prepend(text);
-}
-
-/*
         // make a request to the server and wait for response
-        const res = await fetch('/api/commands', {
+        const res = await fetch('/game/command', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -41,6 +25,19 @@ function commandHandler(log) {
         const log = data.log;
         
         if (log) {
-            await commandHandler(command);
+            await commandHandler(log);
         }
-        */
+        
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+function commandHandler(log) {
+    const text = document.createElement('div');
+    text.textContent = log;
+
+    container = document.getElementById("command-log");
+    container.prepend(text);
+}
+
