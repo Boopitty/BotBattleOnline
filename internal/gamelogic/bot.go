@@ -1,5 +1,5 @@
 package gamelogic
 
-type bot struct {
-	name string
+type Bot struct {
+	Name string
 }

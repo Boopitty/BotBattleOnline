@@ -2,7 +2,7 @@ package gamelogic
 
 type Player struct {
 	Username string
-	Team     []bot
+	Team     []Bot
 }
 
 func NewPlayer(username string) *Player {

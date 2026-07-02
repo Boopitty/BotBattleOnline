@@ -1,2 +1,2 @@
 # Run the game
-go run ./game/main.go
+go run ./game

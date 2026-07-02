@@ -1,14 +1,14 @@
 document.getElementById('command-form').addEventListener('submit', async (event) => {
-    event.preventDefault()
+    event.preventDefault();
     await command();
-})
+});
 
 async function command() {
     const command = document.getElementById('command').value;
-    console.log(command)
+    console.log(command);
     try{
         // make a request to the server and wait for response
-        const res = await fetch('/game/command', {
+        const res = await fetch('/api/command', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ async function command() {
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
-}
+};
 
 function commandHandler(log) {
     const text = document.createElement('div');
@@ -39,5 +39,6 @@ function commandHandler(log) {
 
     container = document.getElementById("command-log");
     container.prepend(text);
-}
+};
+
 

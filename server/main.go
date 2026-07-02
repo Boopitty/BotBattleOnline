@@ -5,7 +5,15 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 func main() {
 	fmt.Println("Starting Server")
@@ -19,7 +27,8 @@ func main() {
 	// Handle the front page
 	mux.Handle("/", appHandler)
 
-	mux.HandleFunc("/game/command", cfg.handleCommand)
+	mux.HandleFunc("/api/command", cfg.handleCommand)
+	mux.HandleFunc("/ws", handleWS)
 
 	// create the server object
 	srv := &http.Server{
@@ -33,4 +42,21 @@ func main() {
 	// has an unrecoverable error
 	fmt.Printf("server started on http://localhost:%s\n", cfg.port)
 	log.Fatal(srv.ListenAndServe())
+}
+
+func handleWS(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	for {
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			break
+		}
+		conn.WriteMessage(websocket.TextMessage, msg)
+	}
 }
