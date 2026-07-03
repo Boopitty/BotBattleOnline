@@ -40,7 +40,7 @@ func TestNewGameState(t *testing.T) {
 		{
 			name: "NewGameState returns a GameState with empty players and paused set to false",
 			want: &gamelogic.GameState{
-				Players: []gamelogic.Player{},
+				Players: make(map[int]gamelogic.Player),
 				Paused:  false,
 				Mu:      &sync.RWMutex{},
 			},
