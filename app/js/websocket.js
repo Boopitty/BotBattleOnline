@@ -9,7 +9,14 @@ async function initWebSocket() {
         document.getElementById("stop-game-btn").style.display = "block";
         document.getElementById("attack-btn").style.display = "block";
     };
-    socket.onmessage = (event) => console.log(event.data);
+    socket.onmessage = (event) => {
+        try {
+            const resp = JSON.parse(event.data) 
+            console.log(resp.message)
+        } catch (error) {
+            console.error(`Error when parsing: ${error}`)
+        }
+    };
     socket.onerror = (error) => console.log("WebSocket error:", error)
     socket.onclose = () => {
         console.log("WebSocket closed");
@@ -28,7 +35,7 @@ async function closeWebSocket() {
 
 async function sendCommand(command) {
     if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({command}));
+        socket.send(JSON.stringify(command));
     } else {
         console.error(`WebSocket ready state: ${socket.readyState}. Unable to send command: ${command}` );
     }

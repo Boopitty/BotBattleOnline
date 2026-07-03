@@ -9,11 +9,23 @@
         <script src="js/game.js" defer></script>
     </head>
     <body>
-        <div id="button-container">
+        <div class="button-container">
             <button id="start-game-btn" class="button" style="display: block;">Start Game</button>
             <button id="stop-game-btn" class="button" style="display: none;">Stop Game</button>
         </div>
         <canvas id="game-canvas" width="800" height="400" style="border: 1px solid black; display: block; margin: 20px auto;"></canvas>
         <button id="attack-btn" class="button" style="display: none;">Attack</button>
+        <form id="game-form">
+			<input
+				class="input-area"
+				type="text"
+				id="game-input"
+				placeholder="Type 'help' to see commands."
+				required
+			/>
+			<div class="button-container">
+				<button id="game-submit" type="submit" class="button">Enter</button>
+			</div>
+		</form>
     </body>
 </html>

@@ -1,4 +1,8 @@
 // js/game.js
+const user = {"username": "testuser"}; // Replace with actual username logic
+const canvas = document.getElementById("game-canvas");
+const ctx = canvas.getContext("2d");
+
 document.getElementById("start-game-btn").addEventListener("click", () => {
     renderBlocks()
     initWebSocket()
@@ -9,13 +13,22 @@ document.getElementById("stop-game-btn").addEventListener("click", () => {
     closeWebSocket()
 });
 
-document.getElementById("attack-btn").addEventListener("click", async () => {
-    // Placeholder for attack button functionality
-    await sendCommand("attack");
-});
+document.getElementById("game-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const command = document.getElementById("game-input");
 
-const canvas = document.getElementById("game-canvas");
-const ctx = canvas.getContext("2d");
+    try {
+        const res = await sendCommand({
+            user: user,
+            command: command.value,
+        });
+
+    } catch (error) {
+        console.error("Error sending command:", error);
+    };
+    
+    command.value = "";
+});
 
 function renderBlocks() {
     clearCanvas();

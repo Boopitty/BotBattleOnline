@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Boopitty/BotBattleOnline/internal/pubsub"
+	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 )
 
 func (c *config) handleCommand(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +15,7 @@ func (c *config) handleCommand(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&req)
 	if err != nil {
-		pubsub.RespondWithError(w, http.StatusBadRequest, "Invalid request body", err)
+		encoding.RespondWithError(w, http.StatusBadRequest, "Invalid request body", err)
 		return
 	}
 
@@ -24,5 +24,5 @@ func (c *config) handleCommand(w http.ResponseWriter, r *http.Request) {
 	}{
 		Log: "Command received: " + req.Command,
 	}
-	pubsub.RespondWithJSON(w, http.StatusOK, response)
+	encoding.RespondWithJSON(w, http.StatusOK, response)
 }

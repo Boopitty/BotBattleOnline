@@ -60,7 +60,7 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		log.Println("Received message:", string(msg))
-		processed := gamelogic.Process(string(msg))
-		conn.WriteMessage(websocket.TextMessage, []byte(processed))
+		processed := gamelogic.Process(msg)
+		conn.WriteMessage(websocket.TextMessage, processed)
 	}
 }
