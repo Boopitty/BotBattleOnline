@@ -1,11 +1,13 @@
+// js/main.js
 document.getElementById('command-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     await command();
 });
 
 async function command() {
-    const command = document.getElementById('command').value;
+    const command = document.getElementById("command").value;
     console.log(command);
+
     try{
         // make a request to the server and wait for response
         const res = await fetch('/api/command', {
@@ -14,7 +16,7 @@ async function command() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ command }),
-            });
+        });
 
         // Capture the json response data
         const data = await res.json();

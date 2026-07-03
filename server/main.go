@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
 	"github.com/gorilla/websocket"
 )
 
@@ -55,8 +56,11 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
+			log.Printf("error reading message: %v", err)
 			break
 		}
-		conn.WriteMessage(websocket.TextMessage, msg)
+		log.Println("Received message:", string(msg))
+		processed := gamelogic.Process(string(msg))
+		conn.WriteMessage(websocket.TextMessage, []byte(processed))
 	}
 }

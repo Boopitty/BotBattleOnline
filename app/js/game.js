@@ -1,13 +1,18 @@
-// js/main.js
+// js/game.js
 document.getElementById("start-game-btn").addEventListener("click", () => {
     renderBlocks()
     initWebSocket()
-})
+});
 
 document.getElementById("stop-game-btn").addEventListener("click", () => {
     clearCanvas()
     closeWebSocket()
-})
+});
+
+document.getElementById("attack-btn").addEventListener("click", async () => {
+    // Placeholder for attack button functionality
+    await sendCommand("attack");
+});
 
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");

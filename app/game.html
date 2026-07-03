@@ -5,13 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Bot Battle</title>
         <link rel="stylesheet" href="css/game.css" />
-        <script src="js/main.js" defer></script>
         <script src="js/websocket.js" defer></script>
         <script src="js/game.js" defer></script>
     </head>
-    <div id="button-container">
-        <button id="start-game-btn" class="button" style="display: block; margin: 20px auto; ;">Start Game</button>
-        <button id="stop-game-btn" class="button" style="display: none; margin: 20px auto;">Stop Game</button>
-    </div>
-    
-    <canvas id="game-canvas" width="800" height="400" style="border: 1px solid black; display: block; margin: 20px auto;"></canvas>
+    <body>
+        <div id="button-container">
+            <button id="start-game-btn" class="button" style="display: block;">Start Game</button>
+            <button id="stop-game-btn" class="button" style="display: none;">Stop Game</button>
+        </div>
+        <canvas id="game-canvas" width="800" height="400" style="border: 1px solid black; display: block; margin: 20px auto;"></canvas>
+        <button id="attack-btn" class="button" style="display: none;">Attack</button>
+    </body>
+</html>
