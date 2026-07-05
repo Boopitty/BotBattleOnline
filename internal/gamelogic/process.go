@@ -7,13 +7,6 @@ import (
 	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 )
 
-// Request represents a command request from a player.
-type Request struct {
-	User    Player `json:"user"`
-	Command string `json:"command"`
-	Message string `json:"message"`
-}
-
 func Process(req []byte) []byte {
 	// Parse the request string into a Request struct
 	request := Request{}

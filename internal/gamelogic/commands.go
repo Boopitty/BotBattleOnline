@@ -4,15 +4,14 @@ import (
 	"fmt"
 )
 
-type Response struct {
-	Message string `json:"message"`
-}
-
 func commands(req *Request) Response {
 	// Handle the command based on the request
 	switch req.Command {
 	case "help":
 		return Response{Message: "Available commands: help, profile, bots, attack, quit"}
+
+	case "create-profile":
+		return Response{Message: "create-profile not implemented yet"}
 
 	case "make-team":
 		return Response{Message: "makeTeam not implemented yet"}

@@ -1,14 +1,5 @@
 package gamelogic
 
-type Bot struct {
-	Name    string `json:"name"`
-	Health  int    `json:"health"`
-	Power   int    `json:"power"`
-	Defense int    `json:"defense"`
-	Huge    bool   `json:"huge"`
-	IsAlive bool   `json:"is_alive"`
-}
-
 func NewBot(name string, health int, power int, defense int, huge bool) *Bot {
 	return &Bot{
 		Name:    name,
