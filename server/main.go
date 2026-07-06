@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
 	"github.com/gorilla/websocket"
 )
 
@@ -29,7 +28,7 @@ func main() {
 	mux.Handle("/", appHandler)
 
 	mux.HandleFunc("/api/command", cfg.handleCommand)
-	mux.HandleFunc("/ws", handleWS)
+	mux.HandleFunc("/ws", handleWS(cfg))
 
 	// create the server object
 	srv := &http.Server{
@@ -45,22 +44,24 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
-func handleWS(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer conn.Close()
-
-	for {
-		_, msg, err := conn.ReadMessage()
+func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Printf("error reading message: %v", err)
-			break
+			log.Println(err)
+			return
 		}
-		log.Println("Received message:", string(msg))
-		processed := gamelogic.Process(msg)
-		conn.WriteMessage(websocket.TextMessage, processed)
+		defer conn.Close()
+
+		for {
+			_, msg, err := conn.ReadMessage()
+			if err != nil {
+				log.Printf("error reading message: %v", err)
+				break
+			}
+			log.Println("Received message:", string(msg))
+			processed := Process(cfg, msg)
+			conn.WriteMessage(websocket.TextMessage, processed)
+		}
 	}
 }

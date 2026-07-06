@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Boopitty/BotBattleOnline/internal/database"
 	"github.com/joho/godotenv"
 )
 
@@ -12,6 +13,7 @@ type config struct {
 	port         string
 	filepathRoot string
 	token        string
+	db           *database.Queries
 }
 
 // create a new config object by reading environment variables

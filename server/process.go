@@ -1,4 +1,4 @@
-package gamelogic
+package main
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 )
 
-func Process(req []byte) []byte {
+func Process(cfg *config, req []byte) []byte {
 	// Parse the request string into a Request struct
 	request := Request{}
 	err := json.Unmarshal(req, &request)
@@ -17,6 +17,6 @@ func Process(req []byte) []byte {
 		return encoding.MakeJSONResponse(response)
 	}
 
-	response := commands(&request)
+	response := commands(cfg, &request)
 	return encoding.MakeJSONResponse(response)
 }

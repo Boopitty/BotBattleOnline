@@ -4,13 +4,6 @@ import (
 	"sync"
 )
 
-// Request represents a command request from a player.
-type Request struct {
-	User    Player `json:"user"`
-	Command string `json:"command"`
-	Message string `json:"message"`
-}
-
 // Used when creating a new gamestate
 type Player struct {
 	Username string      `json:"username"`
@@ -32,9 +25,4 @@ type GameState struct {
 	Players map[int]Player `json:"players"`
 	Paused  bool           `json:"paused"`
 	Mu      *sync.RWMutex
-}
-
-// Struct to be returned to a client
-type Response struct {
-	Message string `json:"message"`
 }
