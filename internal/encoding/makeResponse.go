@@ -13,3 +13,12 @@ func MakeJSONResponse(payload interface{}) []byte {
 	}
 	return dat
 }
+
+func MakeErrorResponse(payload string) any {
+	resp := struct {
+		message string
+	}{
+		message: payload,
+	}
+	return resp
+}

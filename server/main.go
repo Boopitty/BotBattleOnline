@@ -43,25 +43,3 @@ func main() {
 	fmt.Printf("server started on http://localhost:%s\n", cfg.port)
 	log.Fatal(srv.ListenAndServe())
 }
-
-func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		defer conn.Close()
-
-		for {
-			_, msg, err := conn.ReadMessage()
-			if err != nil {
-				log.Printf("error reading message: %v", err)
-				break
-			}
-			log.Println("Received message:", string(msg))
-			processed := Process(cfg, msg)
-			conn.WriteMessage(websocket.TextMessage, processed)
-		}
-	}
-}

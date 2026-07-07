@@ -12,7 +12,7 @@ import (
 type config struct {
 	port         string
 	filepathRoot string
-	token        string
+	jwt          string
 	db           *database.Queries
 }
 
@@ -42,7 +42,7 @@ func createConfig() *config {
 	cfg := &config{
 		port:         port,
 		filepathRoot: filepathRoot,
-		token:        JWT,
+		jwt:          JWT,
 	}
 
 	return cfg

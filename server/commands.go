@@ -1,34 +1,44 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/Boopitty/BotBattleOnline/internal/database"
+	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
+	"github.com/google/uuid"
 )
-
-// Request represents a command request from a player.
-type Request struct {
-	User    gamelogic.Player `json:"user"`
-	Command string           `json:"command"`
-	Message string           `json:"message"`
-}
 
 // Struct to be returned to a client
 type Response struct {
 	Message string `json:"message"`
 }
 
-func commands(cfg *config, req *Request) Response {
+func commands(cfg *config, req *Request, w http.ResponseWriter, r *http.Request) any {
 	// Handle the command based on the request
 	switch req.Command {
 	case "help":
 		return Response{Message: "Available commands: help, profile, bots, attack, quit"}
 
 	case "create-profile":
-		cfg.db.CreateUser(context.Background(), database.CreateUserParams{})
-		return Response{Message: "create-profile not implemented yet"}
+		dbUser, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
+			ID:        uuid.New(),
+			Name:      req.Login.Username,
+			Password:  req.Login.Username,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		})
+		if err != nil {
+			encoding.RespondWithError(w, http.StatusBadRequest, err)
+			return nil
+		}
+		return struct {
+			username string
+		}{
+			username: dbUser.Name,
+		}
 
 	case "make-team":
 		return Response{Message: "makeTeam not implemented yet"}
