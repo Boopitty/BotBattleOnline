@@ -12,7 +12,7 @@ import (
 type config struct {
 	port         string
 	filepathRoot string
-	jwt          string
+	secret       string
 	db           *database.Queries
 }
 
@@ -34,15 +34,15 @@ func createConfig() *config {
 		log.Fatalln("FILEPATH_ROOT env variable not found.")
 	}
 
-	JWT := os.Getenv("JWT")
-	if JWT == "" {
+	secret := os.Getenv("SECRET")
+	if secret == "" {
 		log.Fatalln("JWT env variable not found.")
 	}
 
 	cfg := &config{
 		port:         port,
 		filepathRoot: filepathRoot,
-		jwt:          JWT,
+		secret:       secret,
 	}
 
 	return cfg
