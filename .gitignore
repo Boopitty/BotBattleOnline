@@ -1,3 +1,4 @@
 server/server
 .env
 sql/database_notes.md
+dev_notes.md
