@@ -1,5 +1,5 @@
 // js/game.js
-const user = {"username": "testuser"}; // Replace with actual username logic
+const user = {"username": "Anonymous"}; // Replace with actual username logic
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
@@ -18,10 +18,14 @@ document.getElementById("game-form").addEventListener("submit", async (e) => {
     const command = document.getElementById("game-input");
 
     try {
-        const res = await sendCommand({
-            user: user,
-            command: command.value,
-        });
+        
+        const res = await sendRequest(
+            JSON.stringify(
+                {
+                    user: user,
+                    command: command.value
+                })
+            );
 
     } catch (error) {
         console.error("Error sending command:", error);

@@ -19,10 +19,10 @@ async function initWebSocket() {
     };
     socket.onerror = (error) => console.log("WebSocket error:", error)
     socket.onclose = () => {
-        console.log("WebSocket closed");
         document.getElementById("start-game-btn").style.display = "block";
         document.getElementById("stop-game-btn").style.display = "none";
         document.getElementById("attack-btn").style.display = "none";
+        console.log("WebSocket closed");
     }
 };
 
@@ -33,9 +33,10 @@ async function closeWebSocket() {
     }
 }
 
-async function sendCommand(command) {
+// Send a request through the websocket. req is a struct in JSON format.
+async function sendRequest(req) {
     if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(command));
+        socket.send(req);
     } else {
         console.error(`WebSocket ready state: ${socket.readyState}. Unable to send command: ${command}` );
     }

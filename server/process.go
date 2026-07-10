@@ -9,10 +9,12 @@ import (
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
 )
 
-// Incoming reques struct
+// Incoming request struct.
+// When request is decoded, it fills as much of this struct as possible.
+// The Command field determines how to proceed with the request, while using only the relevant fields.
 type Request struct {
-	User    gamelogic.Player `json:"user"`
-	Command string           `json:"command"`
+	User    gamelogic.Player `json:"user"`    // manditory
+	Command string           `json:"command"` // manditory
 	Message string           `json:"message"`
 	Login   struct {
 		Username string `json:"username"`
