@@ -21,6 +21,12 @@ body {
     background-color: var(--bg-color);
 }
 
+#game-container{
+    display: flex;
+    justify-content: center; /* Horizontal */
+    align-items: center;     /* Vertical */
+}
+
 h1 {
     color: var(--primary-color);
 }

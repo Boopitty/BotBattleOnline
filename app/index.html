@@ -6,6 +6,8 @@
 		<title>Bot Battle</title>
 		<link rel="stylesheet" href="css/styles.css" />
 		<script src="js/main.js" defer></script>
+		<script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js" defer></script>
+		<script type="module" src="js/Game.js" defer></script>
 	</head>
 	<body>
 		<div class="nav-bar">
@@ -14,7 +16,8 @@
 				<span class="subtitle">--Robot Arena--</span>
 			</h1>
 		</div>
-		<iframe id="game_widget" src="game.html" style="width: 100%; height: 500px; border: none;"></iframe>
+		<div id="game-container"></div>
+		<iframe id="game_widget" src="game.html" style="width: 100%; height: 650px; border: none;"></iframe>
 		<div id="command-section">
 			<h2>Enter a command</h2>
 			<form id="command-form">
