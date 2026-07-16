@@ -1,4 +1,33 @@
 // js/main.js
+document.addEventListener('DOMContentLoaded', async () => {
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    console.log('token found...');
+    document.getElementById('login').textContent = 'logout';
+  } else {
+    console.log('token not found...')
+    document.getElementById('login').textContent = 'login';
+  }
+});
+
+document.getElementById('login').addEventListener('click', () => {
+    const btn = document.getElementById('login'); // get the button
+
+    // Change operation depending on the button's text
+    if (btn.textContent === 'login') {
+        console.log('logging in...');
+        btn.textContent = 'logout';
+        
+    } else if (btn.textContent === 'logout') {
+        console.log('logging out...');
+        btn.textContent = 'login';
+    } else {
+        console.log('Invalid');
+    }
+    
+});
+
 document.getElementById('command-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     await command();
@@ -33,7 +62,7 @@ async function command() {
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
-};
+}
 
 function commandHandler(log) {
     const text = document.createElement('div');
@@ -41,6 +70,6 @@ function commandHandler(log) {
 
     container = document.getElementById("command-log");
     container.prepend(text);
-};
+}
 
 

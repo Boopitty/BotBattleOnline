@@ -22,6 +22,7 @@ class Game extends Phaser.Scene
         this.add.image(900, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
             console.log('logging in...')
         })
+        this.add.image(100, 600, 'dagger-64').setScale(5, 5)
     }
 }
 
@@ -35,7 +36,31 @@ const config = {
         mode: Phaser.Scale.FIT
     },
     scene: [Boot, Preloader, MainMenu, Game],
-};
+}
 
 // Bind the game to a top-level identifier
 const game = new Phaser.Game(config);
+
+// Event listender for the websocket. Salvaged from the deleted Canvas.js, to-be adjusted for Game.js.
+/*
+document.getElementById("game-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const command = document.getElementById("game-input");
+
+    try {
+        
+        const res = await sendRequest(
+            JSON.stringify(
+                {
+                    user: user,
+                    command: command.value
+                })
+            );
+
+    } catch (error) {
+        console.error("Error sending command:", error);
+    };
+    
+    command.value = "";
+});
+*/
