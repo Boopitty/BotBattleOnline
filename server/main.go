@@ -28,6 +28,8 @@ func main() {
 	mux.Handle("/", appHandler)
 
 	mux.HandleFunc("/api/command", cfg.handleCommand)
+	mux.HandleFunc("/api/createUser", cfg.handleCreateUser)
+	mux.HandleFunc("/api/deleteUser", cfg.handleDeleteUser)
 	mux.HandleFunc("/ws", handleWS(cfg))
 
 	// create the server object

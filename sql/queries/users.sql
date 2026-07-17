@@ -8,3 +8,15 @@ VALUES (
     $5
 )
 RETURNING *;
+
+-- name: LoginUser :one
+SELECT * FROM users
+WHERE name = $1 AND password = $2;
+
+-- name: GetUserByID :one
+SELECT * FROM users
+WHERE ID = $1;
+
+-- name: DeleteUser :exec
+DELETE FROM users 
+WHERE id = $1;
