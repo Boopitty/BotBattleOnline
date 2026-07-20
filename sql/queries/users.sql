@@ -20,3 +20,6 @@ WHERE ID = $1;
 -- name: DeleteUser :exec
 DELETE FROM users 
 WHERE id = $1;
+
+-- name: ResetUsers :exec
+DELETE FROM users;
