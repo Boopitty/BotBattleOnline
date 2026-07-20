@@ -16,8 +16,62 @@
 				Bot Battle!
 				<span class="subtitle">--Robot Arena--</span>
 			</h1>
-			<button id="login" type="button" class="button">login</button>
+			<div class="button-container">
+				<button id="login" type="button" class="button">Login</button>
+				<button id="cancel-login" type="button" class="button">Cancel</button>
+				<button id="logout" type="button" class="button">Logout</button>
+			</div>
 		</div>
+		<div id="login-container">
+			<form id="login-form">
+				<input
+					class="input-area"
+					type="username"
+					id="username"
+					placeholder="Username"
+					required
+				/>
+				<input
+					class="input-area"
+					type="password"
+					id="password"
+					placeholder="Password"
+					required
+				/>
+				<div class="button-container">
+					<button id="submit-login" type="submit" class="button">Submit</button>
+					<button id="switch-to-new" type="button" class="button">Create Account</button>
+				</div>
+			</form>
+			<form id="new-profile-form">
+				<input
+					class="input-area"
+					type="username"
+					id="new-username"
+					placeholder="Username"
+					required
+				/>
+				<input
+					class="input-area"
+					type="password"
+					id="new-password"
+					placeholder="Password"
+					required
+				/>
+				<input
+					class="input-area"
+					type="password"
+					id="confirm-password"
+					placeholder="Confirm Password"
+					required
+				/>
+				<div class="button-container">
+					<button id="submit-new-profile" type="submit" class="button">submit</button>
+					<button id="switch-to-login" type="button" class="button">login</button>
+				</div>
+			</form>
+		</div>
+		</form>
 		<div id="game-container"></div>
 		<div id="command-section">
 			<h2>Enter a command</h2>
@@ -34,7 +88,6 @@
 				</div>
 			</form>
 		</div>
-		<div id="command-log" class="log">
-		</div>
+		<div id="command-log" class="log"></div>
 	</body>
 </html>

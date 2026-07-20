@@ -4,29 +4,68 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (token) {
     console.log('token found...');
-    document.getElementById('login').textContent = 'logout';
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('cancel-login').style.display = 'none';
+    document.getElementById('logout').style.display = 'block';
   } else {
     console.log('token not found...')
-    document.getElementById('login').textContent = 'login';
+    document.getElementById('login').style.display = 'block';
+    document.getElementById('cancel-login').style.display = 'none';
+    document.getElementById('logout').style.display = 'none';
   }
 });
 
+// display login form
 document.getElementById('login').addEventListener('click', () => {
-    const btn = document.getElementById('login'); // get the button
+    console.log('displaying login form...');
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('cancel-login').style.display = 'block';
+    document.getElementById('logout').style.display = 'none';
 
-    // Change operation depending on the button's text
-    if (btn.textContent === 'login') {
-        console.log('logging in...');
-        btn.textContent = 'logout';
-        
-    } else if (btn.textContent === 'logout') {
-        console.log('logging out...');
-        btn.textContent = 'login';
-    } else {
-        console.log('Invalid');
-    }
-    
+    document.getElementById('login-form').style.display = 'flex';
+    document.getElementById('new-profile-form').style.display = 'none';
 });
+
+// Cancel login process
+document.getElementById('cancel-login').addEventListener('click', () => {
+    console.log('cancelling login...');
+    document.getElementById('login').style.display = 'block';
+    document.getElementById('cancel-login').style.display = 'none';
+    document.getElementById('logout').style.display = 'none';
+
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('new-profile-form').style.display = 'none';
+});
+
+// logout and clear credentials
+document.getElementById('logout').addEventListener('click', () => {
+    console.log('logging out...');
+    document.getElementById('login').style.display = 'block';
+    document.getElementById('cancel-login').style.display = 'none';
+    document.getElementById('logout').style.display = 'none';
+
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('new-profile-form').style.display = 'none';
+});
+
+// switch from the 'login' form to the 'new profile' form
+document.getElementById('switch-to-new').addEventListener('click', () => {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('new-profile-form').style.display = 'flex';
+})
+
+document.getElementById('switch-to-login').addEventListener('click', () => {
+    document.getElementById('login-form').style.display = 'flex';
+    document.getElementById('new-profile-form').style.display = 'none';
+})
+
+document.getElementById('submit-login').addEventListener('click', () => {
+    console.log('logging in...');
+})
+
+document.getElementById('submit-new-profile').addEventListener('click', () => {
+    console.log('creating profile...');
+})
 
 document.getElementById('command-form').addEventListener('submit', async (event) => {
     event.preventDefault();
