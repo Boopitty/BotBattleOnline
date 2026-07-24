@@ -16,8 +16,6 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
-	fmt.Println("Starting Server")
-
 	cfg := createConfig()
 
 	// Mutex for the server
@@ -28,8 +26,10 @@ func main() {
 	mux.Handle("/", appHandler)
 
 	mux.HandleFunc("/api/command", cfg.handleCommand)
-	mux.HandleFunc("/api/createUser", cfg.handleCreateUser)
-	mux.HandleFunc("/api/deleteUser", cfg.handleDeleteUser)
+	mux.HandleFunc("POST /api/createUser", cfg.handleCreateUser)
+	mux.HandleFunc("POST /api/login", cfg.handleLogin)
+	mux.HandleFunc("DELETE /api/deleteUser", cfg.handleDeleteUser)
+	mux.HandleFunc("DELETE /api/resetUsers", cfg.handleReset)
 	mux.HandleFunc("/ws", handleWS(cfg))
 
 	// create the server object

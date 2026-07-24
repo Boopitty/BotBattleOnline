@@ -24,11 +24,11 @@ func commands(cfg *config, req *Request, w http.ResponseWriter, r *http.Request)
 
 	case "create-profile":
 		dbUser, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-			ID:        uuid.New(),
-			Name:      req.Login.Username,
-			Password:  req.Login.Username,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			ID:             uuid.New(),
+			Username:       req.Login.Username,
+			HashedPassword: req.Login.Username,
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
 		})
 		if err != nil {
 			encoding.RespondWithError(w, http.StatusBadRequest, err)
@@ -37,7 +37,7 @@ func commands(cfg *config, req *Request, w http.ResponseWriter, r *http.Request)
 		return struct {
 			username string
 		}{
-			username: dbUser.Name,
+			username: dbUser.Username,
 		}
 
 	case "make-team":

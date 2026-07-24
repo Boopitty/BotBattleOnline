@@ -1,5 +1,5 @@
 -- name: CreateUser :one
-INSERT INTO users (id, name, password, created_at, updated_at)
+INSERT INTO users (id, username, hashed_password, created_at, updated_at)
 VALUES (
     $1,
     $2,
@@ -9,13 +9,13 @@ VALUES (
 )
 RETURNING *;
 
--- name: LoginUser :one
+-- name: GetUser :one
 SELECT * FROM users
-WHERE name = $1 AND password = $2;
+WHERE username = $1;
 
 -- name: GetUserByID :one
 SELECT * FROM users
-WHERE ID = $1;
+WHERE id = $1;
 
 -- name: DeleteUser :exec
 DELETE FROM users 

@@ -65,12 +65,16 @@ func (c *config) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hashedPass, err := auth.HashPass(req.Password)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+	}
+
 	user, err := c.db.CreateUser(r.Context(), database.CreateUserParams{
-		ID:        uuid.New(),
-		Name:      req.Username,
-		Password:  hashedPass,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:             uuid.New(),
+		Username:       req.Username,
+		HashedPassword: hashedPass,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	})
 	if err != nil {
 		log.Printf("Error creating user: %v", err)
@@ -83,9 +87,44 @@ func (c *config) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		Name string
 	}{
 		ID:   user.ID,
-		Name: user.Name,
+		Name: user.Username,
 	}
 
+	encoding.RespondWithJSON(w, http.StatusCreated, response)
+}
+
+func (c *config) handleLogin(w http.ResponseWriter, r *http.Request) {
+	req := struct {
+		Username string
+		Password string
+	}{}
+
+	success := encoding.DecodeJSON(w, r, &req)
+	if !success {
+		return
+	}
+
+	user, err := c.db.GetUser(r.Context(), req.Username)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusUnauthorized, err)
+	}
+
+	valid, err := auth.CheckPassHash(req.Password, user.HashedPassword)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+	}
+	if !valid {
+		encoding.RespondWithError(w, http.StatusUnauthorized, nil)
+		return
+	}
+
+	response := struct {
+		Id       uuid.UUID
+		Username string
+	}{
+		Id:       user.ID,
+		Username: user.Username,
+	}
 	encoding.RespondWithJSON(w, http.StatusCreated, response)
 }
 
@@ -100,19 +139,26 @@ func (c *config) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.db.LoginUser(r.Context(), database.LoginUserParams{
-		Name:     req.Username,
-		Password: req.Password,
-	})
+	user, err := c.db.GetUser(r.Context(), req.Username)
 	if err != nil {
 		log.Printf("Error finding user: %v", err)
 		encoding.RespondWithError(w, http.StatusUnauthorized, err)
 		return
 	}
+
 	err = c.db.DeleteUser(r.Context(), user.ID)
 	if err != nil {
 		log.Printf("Error Deleting user: %v", err)
 		encoding.RespondWithError(w, http.StatusInternalServerError, err)
 		return
 	}
+}
+
+func (c *config) handleReset(w http.ResponseWriter, r *http.Request) {
+	err := c.db.ResetUsers(r.Context())
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, struct{}{})
 }

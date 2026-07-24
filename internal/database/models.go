@@ -11,9 +11,9 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Name      string    `json:"name"`
-	Password  string    `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID             uuid.UUID `json:"id"`
+	Username       string    `json:"username"`
+	HashedPassword string    `json:"hashed_password"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
