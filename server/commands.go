@@ -2,13 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"time"
 
-	"github.com/Boopitty/BotBattleOnline/internal/database"
-	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
-	"github.com/google/uuid"
 )
 
 // Struct to be returned to a client
@@ -16,29 +11,11 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func commands(cfg *config, req *Request, w http.ResponseWriter, r *http.Request) any {
+func commands(req *Request) any {
 	// Handle the command based on the request
 	switch req.Command {
 	case "help":
 		return Response{Message: "Available commands: help, profile, bots, attack, quit"}
-
-	case "create-profile":
-		dbUser, err := cfg.db.CreateUser(r.Context(), database.CreateUserParams{
-			ID:             uuid.New(),
-			Username:       req.Login.Username,
-			HashedPassword: req.Login.Username,
-			CreatedAt:      time.Now(),
-			UpdatedAt:      time.Now(),
-		})
-		if err != nil {
-			encoding.RespondWithError(w, http.StatusBadRequest, err)
-			return nil
-		}
-		return struct {
-			username string
-		}{
-			username: dbUser.Username,
-		}
 
 	case "make-team":
 		return Response{Message: "makeTeam not implemented yet"}

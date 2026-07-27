@@ -5,15 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 func main() {
 	cfg := createConfig()
@@ -40,8 +32,6 @@ func main() {
 		ReadTimeout:  30 * time.Second,
 	}
 
-	// this blocks forever, until the server
-	// has an unrecoverable error
 	fmt.Printf("server started on http://localhost:%s\n", cfg.port)
-	log.Fatal(srv.ListenAndServe())
+	log.Fatal(srv.ListenAndServe()) // this blocks forever, until the server has an unrecoverable error
 }

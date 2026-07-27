@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const username = localStorage.getItem("username");
 
   if (username) {
-    console.log("Username found...");
+    console.log(`Logging in as: ${username}`);
     document.getElementById("login").style.display = "none";
     document.getElementById("cancel-login").style.display = "none";
     document.getElementById("logout").style.display = "block";
@@ -89,9 +89,9 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
         }
 
         // locally store username
-        console.log(`logging in as ${data.Username}`);
         localStorage.setItem("username", data.Username);
-
+        console.log(`logging in as ${data.Username}`);
+        
         // clear inputs and re-configure buttons
         document.getElementsByClassName("input-area").value = ""
         document.getElementById("login").style.display = "none";
@@ -111,7 +111,7 @@ document.getElementById("new-profile-form").addEventListener("submit", async (ev
     const passwordBox = document.getElementById("new-password");
     const confirmPasswordBox = document.getElementById("confirm-password");
 
-    if (password.value !== confirmPasswordBox.value) {
+    if (passwordBox.value !== confirmPasswordBox.value) {
         alert("Error: Passwords do not match!");
         return;
     }
@@ -135,9 +135,9 @@ document.getElementById("new-profile-form").addEventListener("submit", async (ev
         }
 
         // locally store username
-        console.log(`logging in as ${data.Username}`);
         localStorage.setItem("username", data.Username);
-
+        console.log(`logging in as ${data.Username}`);
+        
         // clear inputs and re-configure buttons
         document.getElementsByClassName("input-area").value = ""
         document.getElementById("login").style.display = "none";
@@ -194,12 +194,15 @@ function commandHandler(log) {
 }
 
 async function resetUsers() {
+    console.log("Resetting database...");
     try {
         const resp = await fetch("/api/resetUsers", {
             method: "DELETE"
         });
+        console.log("Database reset successful");
     } catch (error) {
         alert(`Error: ${error}`);
+        console.log("Database reset failed")
     }
 }
 

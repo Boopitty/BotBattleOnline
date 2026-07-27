@@ -20,9 +20,13 @@ class Game extends Phaser.Scene
         }).setOrigin(0.5);
 
         this.add.image(900, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
-            console.log('logging in...')
+            initWebSocket();
         })
-        this.add.image(100, 600, 'dagger-64').setScale(5, 5)
+
+        this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
+            closeWebSocket();
+        })
+        this.add.image(100, 600, 'dagger2-0');
     }
 }
 

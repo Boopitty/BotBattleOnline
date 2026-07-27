@@ -13,9 +13,16 @@ import (
 	"github.com/google/uuid"
 )
 
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+// Handles a websocket request
 func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
+		conn, err := upgrader.Upgrade(w, r, nil) // Upgrade the request into a websocket
 		if err != nil {
 			log.Println(err)
 			return
@@ -29,7 +36,7 @@ func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
 				break
 			}
 			log.Println("Received message:", string(msg))
-			processed := Process(cfg, msg, w, r)
+			processed := Process(cfg, msg)
 			conn.WriteMessage(websocket.TextMessage, processed)
 		}
 	}
@@ -83,11 +90,11 @@ func (c *config) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		ID   uuid.UUID
-		Name string
+		ID       uuid.UUID
+		Username string
 	}{
-		ID:   user.ID,
-		Name: user.Username,
+		ID:       user.ID,
+		Username: user.Username,
 	}
 
 	encoding.RespondWithJSON(w, http.StatusCreated, response)
@@ -160,5 +167,6 @@ func (c *config) handleReset(w http.ResponseWriter, r *http.Request) {
 		encoding.RespondWithError(w, http.StatusInternalServerError, err)
 		return
 	}
+	log.Printf("!!! Database has been RESET !!!")
 	encoding.RespondWithJSON(w, http.StatusOK, struct{}{})
 }

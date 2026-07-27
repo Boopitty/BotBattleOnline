@@ -27,6 +27,7 @@ export default class Preloader extends Phaser.Scene
     {
         this.load.image('Login_Button', '../../assets/Login_Button.png');
         this.load.image('dagger-64', '../../assets/dagger-64.png');
+        this.load.image('dagger2-0', '../../assets/dagger2-0.png');
         /* phaser:assets:start */
         /* phaser:assets:end */
     }

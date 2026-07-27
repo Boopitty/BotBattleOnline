@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
@@ -16,13 +15,10 @@ type Request struct {
 	User    gamelogic.Player `json:"user"`    // manditory
 	Command string           `json:"command"` // manditory
 	Message string           `json:"message"`
-	Login   struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	} `json:"login"`
 }
 
-func Process(cfg *config, req []byte, w http.ResponseWriter, r *http.Request) []byte {
+// Process websocket requests
+func Process(cfg *config, req []byte) []byte {
 	// Parse the request string into a Request struct
 	request := Request{}
 	err := json.Unmarshal(req, &request)
@@ -32,6 +28,6 @@ func Process(cfg *config, req []byte, w http.ResponseWriter, r *http.Request) []
 		return encoding.MakeJSONResponse(response)
 	}
 
-	response := commands(cfg, &request, w, r)
+	response := commands(&request)
 	return encoding.MakeJSONResponse(response)
 }
