@@ -13,7 +13,7 @@ func TestNewPlayer(t *testing.T) {
 		want *gamelogic.Player
 	}{
 		{
-			name: "NewPlayer returns a Player with empty username and empty team",
+			name: "Default",
 			want: &gamelogic.Player{
 				Username: "",
 				Team:     map[int]gamelogic.Bot{},
@@ -38,7 +38,7 @@ func TestNewGameState(t *testing.T) {
 		wantMu *sync.RWMutex
 	}{
 		{
-			name: "NewGameState returns a GameState with empty players and paused set to false",
+			name: "Default",
 			want: &gamelogic.GameState{
 				Players: make(map[int]gamelogic.Player),
 				Paused:  false,
