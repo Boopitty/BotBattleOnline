@@ -1,8 +1,86 @@
 # Bot Battle Online
 
-This is my capstone project! 
+This is my capstone project for boot.dev! 
 Bot Battle is a turn based browser game, where both players choose a team and fight to last bot.
-To play it, just head to the url link(once it's actually completed).
+
+## Getting Started
+### Prerequisites
+
+- [Go](https://golang.org/doc/install) 1.26.1 or later
+- [PostgreSQL](https://www.postgresql.org/download/)
+
+### Install
+
+```bash
+# Install the project
+git clone github.com/Boopitty/BotBattleOnline.git
+
+# change to the project directory
+cd BotBattleOnline
+
+# Download go dependancies
+go mod download
+
+# copy the .env example file, then update the values with your own local settings.
+cp .env.example .env
+```
+
+
+
+## Configuration
+
+
+
+### Database Setup
+
+Create new user and a database. 
+Replace `username` with a new username, `password` with a new secure password, and `db_name` with whatever you want to name your database.
+
+```bash
+# Connect to postgres:
+psql postgres 
+
+# create your role:
+CREATE USER username WITH PASSWORD 'password'; 
+
+# Create the database:
+CREATE DATABASE db_name OWNER username; 
+
+# quit:
+\q 
+
+# Your connection string will be:
+"postgres://username:password@localhost:5432/db_name"
+```
+
+Make an up migration to the database.
+```bash
+goose -dir sql/schema postgres "connection_string" up
+```
+
+### .env File
+Generate a new `SECRET` variable by running this command in your terminal. 
+
+Copy it into the `.env` file once made.
+```bash
+openssl rand -base64 32
+```
+
+Save your database's connection string into your `.env` file as the `DB_URL` variable:
+
+```bash
+# Your connection string will be:
+"postgres://username:password@localhost:5432/db_name"
+```
+
+### Start the Server
+
+```bash
+# Run the server
+bash server.sh
+
+# Kill with ctrl+c
+```
 
 ## Inspiration
 
