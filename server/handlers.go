@@ -55,7 +55,7 @@ func (c *config) handleCommand(w http.ResponseWriter, r *http.Request) {
 	response := struct {
 		Log string `json:"log"`
 	}{
-		Log: "Command received: " + req.Command,
+		Log: "Echo Input: " + req.Command,
 	}
 	encoding.RespondWithJSON(w, http.StatusOK, response)
 }
@@ -89,11 +89,17 @@ func (c *config) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := auth.MakeJWT(user.ID, c.secret, time.Minute*5)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	response := struct {
-		ID       uuid.UUID
-		Username string
+		Token    string `json:"token"`
+		Username string `json:"username"`
 	}{
-		ID:       user.ID,
+		Token:    token,
 		Username: user.Username,
 	}
 
@@ -102,8 +108,8 @@ func (c *config) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (c *config) handleLogin(w http.ResponseWriter, r *http.Request) {
 	req := struct {
-		Username string
-		Password string
+		Username string `json:"username"`
+		Password string `json:"password"`
 	}{}
 
 	success := encoding.DecodeJSON(w, r, &req)
@@ -125,20 +131,27 @@ func (c *config) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := auth.MakeJWT(user.ID, c.secret, time.Minute*5)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	response := struct {
-		Id       uuid.UUID
-		Username string
+		Token    string `json:"token"`
+		Username string `json:"username"`
 	}{
-		Id:       user.ID,
+		Token:    token,
 		Username: user.Username,
 	}
-	encoding.RespondWithJSON(w, http.StatusCreated, response)
+	encoding.RespondWithJSON(w, http.StatusOK, response)
 }
 
 func (c *config) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	req := struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
+		Token    string `json:"token"`
 	}{}
 
 	success := encoding.DecodeJSON(w, r, &req)
@@ -146,19 +159,44 @@ func (c *config) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := c.db.GetUser(r.Context(), req.Username)
+	// Validate the token
+	userID, err := auth.ValidateJWT(req.Token, c.secret)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	// Get the user by ID
+	user, err := c.db.GetUserByID(r.Context(), userID)
 	if err != nil {
 		log.Printf("Error finding user: %v", err)
 		encoding.RespondWithError(w, http.StatusUnauthorized, err)
 		return
 	}
 
+	// Check if username and password match
+	if user.Username != req.Username {
+		encoding.RespondWithError(w, http.StatusUnauthorized, nil)
+		return
+	}
+	match, err := auth.CheckPassHash(req.Password, user.HashedPassword)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+	if !match {
+		encoding.RespondWithError(w, http.StatusUnauthorized, nil)
+		return
+	}
+
+	// Delete the user
 	err = c.db.DeleteUser(r.Context(), user.ID)
 	if err != nil {
 		log.Printf("Error Deleting user: %v", err)
 		encoding.RespondWithError(w, http.StatusInternalServerError, err)
 		return
 	}
+	encoding.RespondWithJSON(w, http.StatusNoContent, struct{}{})
 }
 
 func (c *config) handleReset(w http.ResponseWriter, r *http.Request) {

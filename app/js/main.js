@@ -1,8 +1,9 @@
 // js/main.js
 document.addEventListener("DOMContentLoaded", async () => {
   const username = localStorage.getItem("username");
+  const token = localStorage.getItem("token");
 
-  if (username) {
+  if (token && username) {
     console.log(`Logging in as: ${username}`);
     document.getElementById("login").style.display = "none";
     document.getElementById("cancel-login").style.display = "none";
@@ -43,6 +44,7 @@ document.getElementById("logout").addEventListener("click", () => {
     console.log("logging out...");
 
     localStorage.removeItem("username");
+    localStorage.removeItem("token");
 
     document.getElementById("login").style.display = "block";
     document.getElementById("cancel-login").style.display = "none";
@@ -85,12 +87,15 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
 
         const data = await resp.json(); // response body
         if (!resp.ok) { // check status code
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
             throw new Error(`Login Failed: ${data.error}`);
         }
 
-        // locally store username
-        localStorage.setItem("username", data.Username);
-        console.log(`logging in as ${data.Username}`);
+        // locally store jwt and username
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
+        console.log(`logging in as ${data.username}`);
         
         // clear inputs and re-configure buttons
         document.getElementsByClassName("input-area").value = ""
@@ -131,12 +136,16 @@ document.getElementById("new-profile-form").addEventListener("submit", async (ev
         
         const data = await resp.json(); // response body
         if (!resp.ok) { // check status code
+            document.getElementById("new-username").value = "";
+            document.getElementById("new-password").value = "";
+            document.getElementById("confirm-password").value = "";
             throw new Error(`Login Failed: ${data.error}`);
         }
 
-        // locally store username
-        localStorage.setItem("username", data.Username);
-        console.log(`logging in as ${data.Username}`);
+        // locally store jwt and username
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("username", data.username);
+        console.log(`logging in as ${data.username}`);
         
         // clear inputs and re-configure buttons
         document.getElementsByClassName("input-area").value = ""
