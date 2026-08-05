@@ -1,6 +1,8 @@
-import Boot from "./scenes/Boot.js"
-import MainMenu from "./scenes/MainMenu.js"
-import Preloader from "./scenes/Preloader.js"
+import Phaser from "phaser";
+import Boot from "./scenes/Boot.js";
+import MainMenu from "./scenes/MainMenu.js";
+import Preloader from "./scenes/Preloader.js";
+import {initWebSocket, closeWebSocket, sendRequest} from "./websocket.js"
 
 class Game extends Phaser.Scene
 {
@@ -14,7 +16,7 @@ class Game extends Phaser.Scene
         const cx = this.scale.width / 2;
         const cy = this.scale.height / 2;
 
-        this.add.text(cx, cy, 'Your game starts here', {
+        this.add.text(cx, cy, 'Game starts here', {
             font: '24px monospace',
             color: '#ffe1da',
         }).setOrigin(0.5);
@@ -26,6 +28,16 @@ class Game extends Phaser.Scene
         this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
             closeWebSocket();
         })
+
+        this.anims.create({
+            key: 'Assault_Idle',
+            frames: this.anims.generateFrameNumbers('Assault_Class', {
+                start: 0,
+                end: 1
+            }),    
+            repeat: 0,
+            frameRate: 10
+        });    
         this.add.image(100, 600, 'dagger2-0');
     }
 }

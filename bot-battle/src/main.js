@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("logout").style.display = "block";
 
   } else {
-    console.log("Username not found...")
+    console.log("Username not found..")
     document.getElementById("login").style.display = "block";
     document.getElementById("cancel-login").style.display = "none";
     document.getElementById("logout").style.display = "none";

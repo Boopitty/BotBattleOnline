@@ -1,5 +1,23 @@
 {
-  "name": "Bot-Battle-Website",
+  "name": "bot-battle-website",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "description": "Bot Battle is a turn based browser game. Both players choose a team, send them out in a double battle, and the last bot standing wins.",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "game": "node app/js/Game.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Boopitty/BotBattleOnline.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Boopitty/BotBattleOnline/issues"
+  },
+  "homepage": "https://github.com/Boopitty/BotBattleOnline#readme"
 }

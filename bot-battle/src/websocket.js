@@ -1,4 +1,5 @@
 // js/websocket.js
+export { initWebSocket, closeWebSocket, sendRequest };
 let socket = null;
 
 async function initWebSocket() {
