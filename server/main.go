@@ -10,13 +10,13 @@ import (
 func main() {
 	cfg := createConfig()
 
-	// Mutex for the server
-	mux := http.NewServeMux()
-	appHandler := http.FileServer(http.Dir(cfg.filepathRoot))
+	mux := http.NewServeMux()                                 // Mutex for the server
+	appHandler := http.FileServer(http.Dir(cfg.filepathRoot)) // Serve the static files from the specified root directory
 
 	// Handle the front page
 	mux.Handle("/", appHandler)
 
+	// Handle the API endpoints
 	mux.HandleFunc("/api/command", cfg.handleCommand)
 	mux.HandleFunc("POST /api/createUser", cfg.handleCreateUser)
 	mux.HandleFunc("POST /api/login", cfg.handleLogin)

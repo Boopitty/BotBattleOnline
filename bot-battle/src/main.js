@@ -165,7 +165,6 @@ document.getElementById("command-form").addEventListener("submit", async (event)
 
 async function command() {
     const command = document.getElementById("command").value;
-    console.log(command);
 
     try{
         // make a request to the server and wait for response
@@ -198,8 +197,8 @@ function commandHandler(log) {
     const text = document.createElement("div");
     text.textContent = log;
 
-    container = document.getElementById("command-log");
-    container.prepend(text);
+    const logContainer = document.getElementById("command-log");
+    logContainer.prepend(text);
 }
 
 async function resetUsers() {
