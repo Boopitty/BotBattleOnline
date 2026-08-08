@@ -27,6 +27,7 @@ Certain moves may have priority, which forces them to move faster than normal.
 - [Go](https://golang.org/doc/install) 1.26.1 or later
 - [PostgreSQL](https://www.postgresql.org/download/)
 - [goose](https://goose-docs.ai) used for database migrations
+- [Node.js] 20+ and [npm] used for development
 
 ### Install
 

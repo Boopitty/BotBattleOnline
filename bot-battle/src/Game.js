@@ -21,24 +21,42 @@ class Game extends Phaser.Scene
             color: '#ffe1da',
         }).setOrigin(0.5);
 
-        this.add.image(900, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
+        const rightButton = this.add.image(900, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
             initWebSocket();
-        })
+        });
 
-        this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
+        const leftButton = this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
             closeWebSocket();
         })
 
         this.anims.create({
             key: 'Assault_Idle',
             frames: this.anims.generateFrameNumbers('Assault_Class', {
-                start: 0,
-                end: 1
-            }),    
-            repeat: 0,
-            frameRate: 10
-        });    
-        this.add.image(100, 600, 'dagger2-0');
+            start: 0,
+            end: 1
+        }),    
+            repeat: -1,
+            frameRate: 2
+        });
+
+        const assault = this.add.sprite(824, 500, 'Assault_Class')
+        assault.play('Assault_Idle'); // Play the idle animation for the Assault_Class sprite
+        assault.setScale(15); // Scale the sprite up by a factor of 15
+        assault.flipX = true; // Flip the sprite horizontally
+
+        this.anims.create({
+            key: 'Spider_Idle',
+            frames: this.anims.generateFrameNumbers('Spider', {
+            start: 0,
+            end: 1
+        }),    
+            repeat: -1,
+            frameRate: 2
+        });
+
+        const spider = this.add.sprite(224, 500, 'Spider')
+        spider.play('Spider_Idle'); // Play the idle animation for the Spider sprite
+        spider.setScale(15); // Scale the sprite up by a factor of 15
     }
 }
 
@@ -46,6 +64,7 @@ const config = {
     type: Phaser.AUTO,
     width: 1024,
     height: 768,
+    pixelArt: true,
     parent: 'game-container',
     backgroundColor: '#000000',
     scale: {

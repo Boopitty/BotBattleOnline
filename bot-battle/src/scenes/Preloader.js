@@ -45,17 +45,12 @@ export default class Preloader extends Phaser.Scene
             this.load.spritesheet(
                 fileName, 
                 `../../assets/Robot Warfare Asset Pack 22-11-24/${filePath}`, 
-                { frameWidth: 64, frameHeight: 64 }
+                { frameWidth: 16, frameHeight: 16 }
             );
         }
         this.load.image('Login_Button', '../../assets/Login_Button.png');
         this.load.image('dagger-64', '../../assets/dagger-64.png');
         this.load.image('dagger2-0', '../../assets/dagger2-0.png');
-
-        this.load.spritesheet(
-            'Assault_Class', '../../assets/Robot Warfare Asset Pack 22-11-24/Soldiers/Assault-Class.png',
-            { frameWidth: 64, frameHeight: 64 }
-        );
     }
 
     create ()
