@@ -21,17 +21,19 @@ class Game extends Phaser.Scene
             color: '#ffe1da',
         }).setOrigin(0.5);
 
-        const rightButton = this.add.image(900, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
+        this.rightButton = this.add.image(900, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
             initWebSocket();
         });
+        this.rightButton.setScale(2);
 
-        const leftButton = this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerdown', () => {
+        this.leftButton = this.add.image(100, 100, 'Logout_Button').setInteractive().on('pointerdown', () => {
             closeWebSocket();
         })
+        this.leftButton.setScale(3);
 
         this.anims.create({
             key: 'Assault_Idle',
-            frames: this.anims.generateFrameNumbers('Assault_Class', {
+            frames: this.anims.generateFrameNumbers('Assault', {
             start: 0,
             end: 1
         }),    
@@ -39,10 +41,16 @@ class Game extends Phaser.Scene
             frameRate: 2
         });
 
-        const assault = this.add.sprite(824, 500, 'Assault_Class')
-        assault.play('Assault_Idle'); // Play the idle animation for the Assault_Class sprite
-        assault.setScale(15); // Scale the sprite up by a factor of 15
-        assault.flipX = true; // Flip the sprite horizontally
+        // Handle the Assault_Class sprite
+        this.assault = this.add.sprite(824, 500, 'Assault')
+        this.assault.play('Assault_Idle');
+        this.assault.setScale(15);
+        this.assault.flipX = true;
+        this.assault.setInteractive().on('pointerdown', () => {
+            sendCommand(JSON.stringify({
+                command: "attack"
+            }));
+        });
 
         this.anims.create({
             key: 'Spider_Idle',
@@ -54,10 +62,26 @@ class Game extends Phaser.Scene
             frameRate: 2
         });
 
-        const spider = this.add.sprite(224, 500, 'Spider')
-        spider.play('Spider_Idle'); // Play the idle animation for the Spider sprite
-        spider.setScale(15); // Scale the sprite up by a factor of 15
+        // Handle the Spider sprite
+        this.spider = this.add.sprite(224, 500, 'Spider')
+        this.spider.play('Spider_Idle');
+        this.spider.setScale(15);
+        this.spider.setInteractive().on('pointerdown', () => {
+            sendCommand(JSON.stringify({
+                command: "attack"
+            }));
+        });
     }
+}
+
+// Send a command through the websocket. req is a struct in JSON format.
+async function sendCommand(req) {
+    try {
+        const res = await sendRequest(req);
+
+    } catch (error) {
+        console.error("Error sending command:", error);
+    };
 }
 
 const config = {
@@ -75,27 +99,3 @@ const config = {
 
 // Bind the game to a top-level identifier
 const game = new Phaser.Game(config);
-
-// Event listender for the websocket. Salvaged from the deleted Canvas.js, to-be adjusted for Game.js.
-/*
-document.getElementById("game-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const command = document.getElementById("game-input");
-
-    try {
-        
-        const res = await sendRequest(
-            JSON.stringify(
-                {
-                    user: user,
-                    command: command.value
-                })
-            );
-
-    } catch (error) {
-        console.error("Error sending command:", error);
-    };
-    
-    command.value = "";
-});
-*/

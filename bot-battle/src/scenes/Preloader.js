@@ -27,13 +27,13 @@ export default class Preloader extends Phaser.Scene
     preload ()
     {
         const spritesheets = new Map([
-            ["AnitTank_Class", "Soldiers/AnitTank-Class.png"],
-            ["Assault_Class", "Soldiers/Assault-Class.png"],
-            ["Grenadier_Class", "Soldiers/Grenadier-Class.png"],
-            ["MachineGunner_Class", "Soldiers/MachineGunner-Class.png"],
-            ["RadioOperator_Class", "Soldiers/RadioOperator-Class.png"],
-            ["Sniper_Class", "Soldiers/Sniper-Class.png"],
-            ["SquadLeader_Class", "Soldiers/SquadLeader-Class.png"],
+            ["AntiTank", "Soldiers/AntiTank-Class.png"],
+            ["Assault", "Soldiers/Assault-Class.png"],
+            ["Grenadier", "Soldiers/Grenadier-Class.png"],
+            ["MachineGunner", "Soldiers/MachineGunner-Class.png"],
+            ["RadioOperator", "Soldiers/RadioOperator-Class.png"],
+            ["Sniper", "Soldiers/Sniper-Class.png"],
+            ["SquadLeader", "Soldiers/SquadLeader.png"],
             ["Centipede", "Robots/Centipede.png"],
             ["Hornet", "Robots/Hornet.png"],
             ["Scarab", "Robots/Scarab.png"],
@@ -48,7 +48,8 @@ export default class Preloader extends Phaser.Scene
                 { frameWidth: 16, frameHeight: 16 }
             );
         }
-        this.load.image('Login_Button', '../../assets/Login_Button.png');
+        this.load.image('Login_Button', '../../assets/Login.png');
+        this.load.image('Logout_Button', '../../assets/Logout.png');
         this.load.image('dagger-64', '../../assets/dagger-64.png');
         this.load.image('dagger2-0', '../../assets/dagger2-0.png');
     }

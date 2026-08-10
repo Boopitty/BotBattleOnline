@@ -58,12 +58,12 @@ document.getElementById("logout").addEventListener("click", () => {
 document.getElementById("switch-to-new").addEventListener("click", () => {
     document.getElementById("login-form").style.display = "none";
     document.getElementById("new-profile-form").style.display = "flex";
-})
+});
 
 document.getElementById("switch-to-login").addEventListener("click", () => {
     document.getElementById("login-form").style.display = "flex";
     document.getElementById("new-profile-form").style.display = "none";
-})
+});
 
 // Submit login form
 document.getElementById("login-form").addEventListener("submit", async (event) => {
@@ -210,7 +210,7 @@ async function resetUsers() {
         console.log("Database reset successful");
     } catch (error) {
         alert(`Error: ${error}`);
-        console.log("Database reset failed")
+        console.error("Database reset failed")
     }
 }
 

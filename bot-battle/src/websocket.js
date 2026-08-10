@@ -31,15 +31,19 @@ async function closeWebSocket() {
         socket.close();
         socket = null;
     } else {
-        console.log("Websocket not found.");
+        console.warn("Websocket not found.");
     }
 }
 
 // Send a request through the websocket. req is a struct in JSON format.
 async function sendRequest(req) {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(req);
+    if (socket) {
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(req);
+        } else {
+            console.warn(`WebSocket ready state: ${socket.readyState}. Unable to send command: ${req}` );
+        }
     } else {
-        console.error(`WebSocket ready state: ${socket.readyState}. Unable to send command: ${command}` );
+        console.warn(`WebSocket not found. Unable to send request: ${req}`);
     }
 }
