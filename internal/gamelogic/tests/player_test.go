@@ -9,11 +9,13 @@ import (
 
 func TestNewPlayer(t *testing.T) {
 	tests := []struct {
-		name string // description of this test case
-		want *gamelogic.Player
+		name     string // description of this test case
+		username string
+		want     *gamelogic.Player
 	}{
 		{
-			name: "Default",
+			name:     "Default",
+			username: "",
 			want: &gamelogic.Player{
 				Username: "",
 				Team:     map[int]gamelogic.Bot{},
@@ -22,7 +24,7 @@ func TestNewPlayer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := gamelogic.NewPlayer()
+			got := gamelogic.NewPlayer(tt.username)
 
 			if got.Username != tt.want.Username || len(got.Team) != len(tt.want.Team) {
 				t.Errorf("NewPlayer() = %v, want %v", got, tt.want)

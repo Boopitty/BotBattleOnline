@@ -9,11 +9,10 @@ import (
 )
 
 // Incoming request struct.
-// When request is decoded, it fills as much of this struct as possible.
-// The Command field determines how to proceed with the request, while using only the relevant fields.
+// The Command field determines how to proceed with the request.
 type Request struct {
-	User    gamelogic.Player `json:"user"`    // manditory
-	Command string           `json:"command"` // manditory
+	User    gamelogic.Player `json:"user"`
+	Command string           `json:"command"`
 	Message string           `json:"message"`
 }
 

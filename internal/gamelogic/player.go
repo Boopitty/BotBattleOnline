@@ -1,8 +1,8 @@
 package gamelogic
 
-func NewPlayer() *Player {
+func NewPlayer(username string) *Player {
 	return &Player{
-		Username: "",
+		Username: username,
 		Team:     make(map[int]Bot),
 	}
 }

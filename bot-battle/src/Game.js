@@ -47,9 +47,7 @@ class Game extends Phaser.Scene
         this.assault.setScale(15);
         this.assault.flipX = true;
         this.assault.setInteractive().on('pointerdown', () => {
-            sendCommand(JSON.stringify({
-                command: "attack"
-            }));
+            this.makeRequest("attack");
         });
 
         this.anims.create({
@@ -67,20 +65,25 @@ class Game extends Phaser.Scene
         this.spider.play('Spider_Idle');
         this.spider.setScale(15);
         this.spider.setInteractive().on('pointerdown', () => {
-            sendCommand(JSON.stringify({
-                command: "attack"
-            }));
+            this.makeRequest("attack");
         });
+    }
+
+    makeRequest (type) 
+    {
+        sendCommand(JSON.stringify({
+            command: type
+        }));
     }
 }
 
 // Send a command through the websocket. req is a struct in JSON format.
 async function sendCommand(req) {
     try {
-        const res = await sendRequest(req);
+        const resp = await sendRequest(req);
 
     } catch (error) {
-        console.error("Error sending command:", error);
+        console.error("Error sending command: ", error);
     };
 }
 
