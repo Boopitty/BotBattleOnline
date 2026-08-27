@@ -17,6 +17,9 @@ func commands(req *Request) any {
 	case "help":
 		return Response{Message: "Available commands: help, profile, bots, attack, quit"}
 
+	case "select-bot":
+		return Response{Message: "selectBot not implemented yet"}
+
 	case "make-team":
 		return Response{Message: "makeTeam not implemented yet"}
 
