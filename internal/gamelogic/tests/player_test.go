@@ -42,9 +42,11 @@ func TestNewGameState(t *testing.T) {
 		{
 			name: "Default",
 			want: &gamelogic.GameState{
-				Players: make(map[int]gamelogic.Player),
-				Paused:  false,
-				Mu:      &sync.RWMutex{},
+				Players:    make(map[int]gamelogic.Player),
+				Spectators: make(map[int]gamelogic.Player),
+				ActiveBots: make([]gamelogic.Bot, 4),
+				Turn:       0,
+				Mu:         &sync.RWMutex{},
 			},
 			wantMu: &sync.RWMutex{},
 		},
@@ -54,7 +56,19 @@ func TestNewGameState(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := gamelogic.NewGameState()
 
-			if len(got.Players) != len(tt.want.Players) || got.Paused != tt.want.Paused {
+			if len(got.Players) != len(tt.want.Players) {
+				t.Errorf("NewGameState() = %v, want %v", got, tt.want)
+			}
+			if len(got.Spectators) != len(tt.want.Spectators) {
+				t.Errorf("NewGameState() = %v, want %v", got, tt.want)
+			}
+			if len(got.ActiveBots) != len(tt.want.ActiveBots) {
+				t.Errorf("NewGameState() = %v, want %v", got, tt.want)
+			}
+			if got.Turn != tt.want.Turn {
+				t.Errorf("NewGameState() = %v, want %v", got, tt.want)
+			}
+			if got.Mu == nil || tt.wantMu == nil {
 				t.Errorf("NewGameState() = %v, want %v", got, tt.want)
 			}
 		})
