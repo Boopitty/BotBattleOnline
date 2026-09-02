@@ -28,7 +28,7 @@ type Response struct {
 // Process websocket requests
 func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 	// Parse the request string into a Request struct
-	request := Request{}
+	var request Request
 	err := json.Unmarshal(req, &request)
 	if err != nil {
 		msg := fmt.Sprintf("Error parsing command: %s", err)

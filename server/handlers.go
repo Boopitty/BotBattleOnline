@@ -33,6 +33,8 @@ func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				log.Printf("error reading message: %v", err)
+				processed := Process(cfg, []byte(`{"command":"leave-game"}`), conn) // Ensure the player leaves the game when the connection is closed
+				log.Printf("Processed leaveGame response: %s\n", string(processed))
 				break
 			}
 			log.Println("Received message:", string(msg))
