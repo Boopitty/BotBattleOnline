@@ -39,6 +39,7 @@ func main() {
 		ReadTimeout:  30 * time.Second,
 	}
 
+	playerSession = make(map[*websocket.Conn]uuid.UUID) // Map of player connections to session IDs
 	sessions = make(map[uuid.UUID]*gamelogic.GameState) // List of gamestates
 	fmt.Printf("server started on http://localhost:%s\n", cfg.port)
 	log.Fatal(srv.ListenAndServe()) // this blocks forever, until the server has an unrecoverable error

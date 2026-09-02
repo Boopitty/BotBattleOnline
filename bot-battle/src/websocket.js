@@ -22,6 +22,7 @@ async function initWebSocket() {
     };
     socket.onerror = (error) => console.log("WebSocket error:", error);
     socket.onclose = () => {
+        socket = null;
         console.log("WebSocket Closed");
     }
 };
@@ -29,7 +30,6 @@ async function initWebSocket() {
 async function closeWebSocket() {
     if (socket) {
         socket.close();
-        socket = null;
     } else {
         console.warn("Websocket not found.");
     }

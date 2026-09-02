@@ -79,8 +79,10 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 
 		// Associate the connection with the session ID
 		playerSession[conn] = sessionID
-		fmt.Printf("New game started by player: %s, session ID: %s\n", request.User.Username, sessionID)
+		fmt.Printf("New game started by player: %s\n", request.User.Username)
+		fmt.Printf("New session ID: %s\n", sessionID)
 		fmt.Printf("Current session count: %d\n", len(sessions))
+		fmt.Printf("Current player count: %d\n", len(playerSession))
 
 		return encoding.MakeJSONResponse(Response{
 			Message: "New game started with player: " + sessions[sessionID].Players[conn].Username,
@@ -93,7 +95,20 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 		return encoding.MakeJSONResponse(Response{Message: "spectateGame not implemented yet"})
 
 	case "leave-game":
-		return encoding.MakeJSONResponse(Response{Message: "leaveGame not implemented yet"})
+		if sessionID, exists := playerSession[conn]; exists {
+			delete(playerSession, conn)
+			fmt.Printf("Current player count: %d\n", len(playerSession))
+			if gameState, exists := sessions[sessionID]; exists {
+				delete(gameState.Players, conn)
+				if len(gameState.Players) == 0 {
+					delete(sessions, sessionID)
+					fmt.Printf("Current session count: %d\n", len(sessions))
+
+				}
+			}
+			return encoding.MakeJSONResponse(Response{Message: "You have left the game"})
+		}
+		return encoding.MakeJSONResponse(Response{Message: "You are not currently in a game"})
 
 	case "pause":
 		return encoding.MakeJSONResponse(Response{Message: "pause not implemented yet"})
