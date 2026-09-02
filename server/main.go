@@ -8,9 +8,11 @@ import (
 
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
 
 var sessions map[uuid.UUID]*gamelogic.GameState
+var playerSession map[*websocket.Conn]uuid.UUID
 
 func main() {
 	cfg := createConfig()

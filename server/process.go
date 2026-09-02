@@ -73,12 +73,17 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 			}
 		}
 
-		// Store the gameState in a global variable
+		// Store the gameState in a global variable and associate the connection with the session
 		sessions[sessionID] = gamelogic.NewGameState()
 		sessions[sessionID].Players[conn] = request.User
+
+		// Associate the connection with the session ID
+		playerSession[conn] = sessionID
+		fmt.Printf("New game started by player: %s, session ID: %s\n", request.User.Username, sessionID)
+		fmt.Printf("Current session count: %d\n", len(sessions))
+
 		return encoding.MakeJSONResponse(Response{
 			Message: "New game started with player: " + sessions[sessionID].Players[conn].Username,
-			Output:  sessionID,
 		})
 
 	case "join-game":

@@ -4,8 +4,6 @@ import MainMenu from "./scenes/MainMenu.js";
 import Preloader from "./scenes/Preloader.js";
 import {initWebSocket, closeWebSocket, sendRequest} from "./websocket.js"
 
-var sessionID = null;
-
 class Game extends Phaser.Scene
 {
     constructor ()
@@ -69,7 +67,6 @@ class Game extends Phaser.Scene
         this.spider.setInteractive().on('pointerdown', () => {
             const resp = sendRequest(makeRequest("new-game"));
             console.log(resp.message);
-            sessionID = resp.sessionID;
         });
     }
 }
