@@ -5,7 +5,12 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
+	"github.com/google/uuid"
 )
+
+var sessions map[uuid.UUID]*gamelogic.GameState
 
 func main() {
 	cfg := createConfig()
@@ -32,6 +37,7 @@ func main() {
 		ReadTimeout:  30 * time.Second,
 	}
 
+	sessions = make(map[uuid.UUID]*gamelogic.GameState) // List of gamestates
 	fmt.Printf("server started on http://localhost:%s\n", cfg.port)
 	log.Fatal(srv.ListenAndServe()) // this blocks forever, until the server has an unrecoverable error
 }

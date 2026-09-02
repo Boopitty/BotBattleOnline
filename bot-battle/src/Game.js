@@ -4,6 +4,8 @@ import MainMenu from "./scenes/MainMenu.js";
 import Preloader from "./scenes/Preloader.js";
 import {initWebSocket, closeWebSocket, sendRequest} from "./websocket.js"
 
+var sessionID = null;
+
 class Game extends Phaser.Scene
 {
     constructor ()
@@ -46,8 +48,8 @@ class Game extends Phaser.Scene
         this.assault.play('Assault_Idle');
         this.assault.setScale(15);
         this.assault.flipX = true;
-        this.assault.setInteractive().on('pointerdown', () => {
-            this.makeRequest("attack");
+        this.assault.setInteractive().on('pointerup', () => {
+            sendRequest(makeRequest("leave-game"));
         });
 
         this.anims.create({
@@ -65,26 +67,27 @@ class Game extends Phaser.Scene
         this.spider.play('Spider_Idle');
         this.spider.setScale(15);
         this.spider.setInteractive().on('pointerdown', () => {
-            this.makeRequest("attack");
+            const resp = sendRequest(makeRequest("new-game"));
+            console.log(resp.message);
+            sessionID = resp.sessionID;
         });
-    }
-
-    makeRequest (type) 
-    {
-        sendCommand(JSON.stringify({
-            command: type
-        }));
     }
 }
 
-// Send a command through the websocket. req is a struct in JSON format.
-async function sendCommand(req) {
-    try {
-        const resp = await sendRequest(req);
-
-    } catch (error) {
-        console.error("Error sending command: ", error);
-    };
+/** 
+ * @Param {string} command - The command to send
+ * @Param {number} input - The input for the command
+ * @returns {string} - The request string in JSON format
+ */
+function makeRequest (command, input = 0) {
+    const req = JSON.stringify({
+        User: {
+            username: localStorage.getItem("username"),
+        },
+        command: command,
+        input: input
+    });
+    return req;
 }
 
 const config = {

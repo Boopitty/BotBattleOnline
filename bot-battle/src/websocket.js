@@ -35,7 +35,10 @@ async function closeWebSocket() {
     }
 }
 
-// Send a request through the websocket. req is a struct in JSON format.
+/**
+ * @param {string} req - The request string in JSON format
+ * @returns {Promise} - The response from the server
+ */
 async function sendRequest(req) {
     if (socket) {
         if (socket.readyState === WebSocket.OPEN) {

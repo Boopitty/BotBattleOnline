@@ -36,7 +36,7 @@ func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
 				break
 			}
 			log.Println("Received message:", string(msg))
-			processed := Process(cfg, msg)
+			processed := Process(cfg, msg, conn)
 			conn.WriteMessage(websocket.TextMessage, processed)
 		}
 	}

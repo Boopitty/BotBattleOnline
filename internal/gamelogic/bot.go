@@ -16,12 +16,13 @@ type Bot struct {
 	Skills   map[skillIndex]string `json:"skills"`
 }
 
-type botNum int
+type BotNum int
 
 const (
-	BasicBot  botNum = 0
-	SpiderBot botNum = 1
-	BigBot    botNum = 2
+	None      BotNum = -1
+	BasicBot  BotNum = 0
+	SpiderBot BotNum = 1
+	BigBot    BotNum = 2
 )
 
 func newBot(name string, value int, hp int, atk int, def int, spd int, huge bool) *Bot {
@@ -42,7 +43,7 @@ func newBot(name string, value int, hp int, atk int, def int, spd int, huge bool
 	}
 }
 
-func MakeBot(num botNum) *Bot {
+func MakeBot(num BotNum) *Bot {
 	switch num {
 	case BasicBot:
 		return newBot("Basic Bot", 10, 50, 10, 5, 10, false)
