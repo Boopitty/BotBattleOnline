@@ -42,7 +42,7 @@ class Game extends Phaser.Scene
         });
 
         // Handle the Assault_Class sprite
-        this.assault = this.add.sprite(824, 500, 'Assault')
+        this.assault = this.add.sprite(824, 500, 'Assault');
         this.assault.play('Assault_Idle');
         this.assault.setScale(15);
         this.assault.flipX = true;
@@ -68,6 +68,25 @@ class Game extends Phaser.Scene
             const resp = sendRequest(makeRequest("new-game"));
             console.log(resp.message);
         });
+
+        this.anims.create({
+            key: 'flag_Idle',
+            frames: this.anims.generateFrameNumbers('flag', {
+                start: 0,
+                end: 1
+            }),    
+            repeat: -1,
+            frameRate: 4
+        });
+
+        // Handle the flag sprite
+        this.flag = this.add.sprite(524, 564, 'flag');
+        this.flag.play('flag_Idle');
+        this.flag.setScale(5);
+        this.flag.setInteractive().on('pointerdown', () => {
+            const resp = sendRequest(makeRequest("join-game"));
+            console.log(resp.message);
+        }); 
     }
 }
 

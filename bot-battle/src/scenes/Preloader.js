@@ -26,26 +26,27 @@ export default class Preloader extends Phaser.Scene
 
     preload ()
     {
-        const spritesheets = new Map([
-            ["AntiTank", "Soldiers/AntiTank-Class.png"],
-            ["Assault", "Soldiers/Assault-Class.png"],
-            ["Grenadier", "Soldiers/Grenadier-Class.png"],
-            ["MachineGunner", "Soldiers/MachineGunner-Class.png"],
-            ["RadioOperator", "Soldiers/RadioOperator-Class.png"],
-            ["Sniper", "Soldiers/Sniper-Class.png"],
-            ["SquadLeader", "Soldiers/SquadLeader.png"],
-            ["Centipede", "Robots/Centipede.png"],
-            ["Hornet", "Robots/Hornet.png"],
-            ["Scarab", "Robots/Scarab.png"],
-            ["Spider", "Robots/Spider.png"],
-            ["Wasp", "Robots/Wasp.png"],
-        ]);
+        const spritesheets = [
+            ["AntiTank", "Soldiers/AntiTank-Class.png", 16, 16],
+            ["Assault", "Soldiers/Assault-Class.png", 16, 16],
+            ["Grenadier", "Soldiers/Grenadier-Class.png", 16, 16],
+            ["MachineGunner", "Soldiers/MachineGunner-Class.png", 16, 16],
+            ["RadioOperator", "Soldiers/RadioOperator-Class.png", 16, 16],
+            ["Sniper", "Soldiers/Sniper-Class.png", 16, 16],
+            ["SquadLeader", "Soldiers/SquadLeader.png", 16, 16],
+            ["Centipede", "Robots/Centipede.png", 16, 16],
+            ["Hornet", "Robots/Hornet.png", 16, 16],
+            ["Scarab", "Robots/Scarab.png", 16, 16],
+            ["Spider", "Robots/Spider.png", 16, 16],
+            ["Wasp", "Robots/Wasp.png", 16, 16],
+            ["flag", "UI/objective-flag.png", 64, 64],
+        ];
 
-        for (const [fileName, filePath] of spritesheets) {
+        for (const [fileName, filePath, width, height] of spritesheets) {
             this.load.spritesheet(
                 fileName, 
                 `../../assets/Robot Warfare Asset Pack 22-11-24/${filePath}`, 
-                { frameWidth: 16, frameHeight: 16 }
+                { frameWidth: width, frameHeight: height }
             );
         }
         this.load.image('Login_Button', '../../assets/Login.png');

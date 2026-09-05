@@ -79,6 +79,7 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 
 		// Associate the connection with the session ID
 		playerSession[conn] = sessionID
+
 		fmt.Printf("New game started by player: %s\n", request.User.Username)
 		fmt.Printf("New session ID: %s\n", sessionID)
 		fmt.Printf("Current session count: %d\n", len(sessions))
@@ -89,10 +90,34 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 		})
 
 	case "join-game":
-		return encoding.MakeJSONResponse(Response{Message: "joinGame not implemented yet"})
+		// Check if the user is already in a game
+		if _, exists := playerSession[conn]; exists {
+			return encoding.MakeJSONResponse(Response{
+				Message: "You are already in a game",
+			})
+		}
 
-	case "spectate-game":
-		return encoding.MakeJSONResponse(Response{Message: "spectateGame not implemented yet"})
+		// Find a game with less than 2 players and add the user to that game
+		for id, gameState := range sessions {
+			if len(gameState.Players) < 2 {
+				gameState.Players[conn] = request.User
+				playerSession[conn] = id
+
+				fmt.Printf("Player %s joined game with session ID: %s\n", request.User.Username, id)
+				fmt.Printf("Current player count: %d\n", len(playerSession))
+
+				return encoding.MakeJSONResponse(Response{
+					Message: "Joined game with session ID: " + id.String(),
+				})
+			}
+		}
+		return encoding.MakeJSONResponse(Response{Message: "No available games to join"})
+
+	case "spectate":
+		return encoding.MakeJSONResponse(Response{Message: "spectate not implemented yet"})
+
+	case "leave-spectate":
+		return encoding.MakeJSONResponse(Response{Message: "leave-spectate not implemented yet"})
 
 	case "leave-game":
 		if sessionID, exists := playerSession[conn]; exists {
