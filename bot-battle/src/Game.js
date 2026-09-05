@@ -65,8 +65,7 @@ class Game extends Phaser.Scene
         this.spider.play('Spider_Idle');
         this.spider.setScale(15);
         this.spider.setInteractive().on('pointerdown', () => {
-            const resp = sendRequest(makeRequest("new-game"));
-            console.log(resp.message);
+            sendRequest(makeRequest("new-game"));
         });
 
         this.anims.create({
@@ -84,8 +83,7 @@ class Game extends Phaser.Scene
         this.flag.play('flag_Idle');
         this.flag.setScale(5);
         this.flag.setInteractive().on('pointerdown', () => {
-            const resp = sendRequest(makeRequest("join-game"));
-            console.log(resp.message);
+            sendRequest(makeRequest("join-game"));
         }); 
     }
 }
@@ -96,14 +94,13 @@ class Game extends Phaser.Scene
  * @returns {string} - The request string in JSON format
  */
 function makeRequest (command, input = 0) {
-    const req = JSON.stringify({
+    return JSON.stringify({
         User: {
             username: localStorage.getItem("username"),
         },
         command: command,
         input: input
     });
-    return req;
 }
 
 const config = {

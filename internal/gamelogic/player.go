@@ -1,8 +1,13 @@
 package gamelogic
 
+import (
+	"github.com/gorilla/websocket"
+)
+
 type Player struct {
-	Username string      `json:"username"`
-	Team     map[int]Bot `json:"team"`
+	Conn     *websocket.Conn `json:"-"`
+	Username string          `json:"username"`
+	Team     map[int]Bot     `json:"team"`
 }
 
 func NewPlayer(username string) *Player {

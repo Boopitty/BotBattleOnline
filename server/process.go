@@ -35,6 +35,7 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 		response := Response{Message: msg}
 		return encoding.MakeJSONResponse(response)
 	}
+	request.User.Conn = conn // Associate the connection with the user to be stored in the game state
 
 	switch request.Command {
 	case "help":
@@ -51,12 +52,18 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 		return encoding.MakeJSONResponse(Response{Message: "makeTeam not implemented yet"})
 
 	case "new-game":
+		if _, exists := playerSession[conn]; exists {
+			return encoding.MakeJSONResponse(Response{
+				Message: "You are already in a game",
+			})
+		}
+
 		// Check if the user is already in a game
 		for id, gameState := range sessions {
-			if _, exists := gameState.Players[conn]; exists {
+			if gameState.Players.Player1.Conn == conn || gameState.Players.Player2.Conn == conn {
+				playerSession[conn] = id
 				return encoding.MakeJSONResponse(Response{
 					Message: "You are already in a game",
-					Output:  id,
 				})
 			}
 		}
@@ -75,7 +82,7 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 
 		// Store the gameState in a global variable and associate the connection with the session
 		sessions[sessionID] = gamelogic.NewGameState()
-		sessions[sessionID].Players[conn] = request.User
+		sessions[sessionID].Players.Player1 = request.User
 
 		// Associate the connection with the session ID
 		playerSession[conn] = sessionID
@@ -86,7 +93,7 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 		fmt.Printf("Current player count: %d\n", len(playerSession))
 
 		return encoding.MakeJSONResponse(Response{
-			Message: "New game started with player: " + sessions[sessionID].Players[conn].Username,
+			Message: fmt.Sprintf("New game started by player: %s", request.User.Username),
 		})
 
 	case "join-game":
@@ -99,15 +106,29 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 
 		// Find a game with less than 2 players and add the user to that game
 		for id, gameState := range sessions {
-			if len(gameState.Players) < 2 {
-				gameState.Players[conn] = request.User
+			gameState.Mu.Lock()
+			defer gameState.Mu.Unlock()
+
+			if gameState.Players.Player1.Conn == nil {
+				gameState.Players.Player1 = request.User
 				playerSession[conn] = id
 
-				fmt.Printf("Player %s joined game with session ID: %s\n", request.User.Username, id)
+				fmt.Printf("Player 1: %s vs Player 2: %s\n", request.User.Username, gameState.Players.Player2.Username)
 				fmt.Printf("Current player count: %d\n", len(playerSession))
 
 				return encoding.MakeJSONResponse(Response{
-					Message: "Joined game with session ID: " + id.String(),
+					Message: fmt.Sprintf("You have joined a game against Player 2: %s", gameState.Players.Player2.Username),
+				})
+
+			} else if gameState.Players.Player2.Conn == nil {
+				gameState.Players.Player2 = request.User
+				playerSession[conn] = id
+
+				fmt.Printf("Player 2: %s vs Player 1: %s\n", request.User.Username, gameState.Players.Player1.Username)
+				fmt.Printf("Current player count: %d\n", len(playerSession))
+
+				return encoding.MakeJSONResponse(Response{
+					Message: fmt.Sprintf("You have joined a game against Player 1: %s", gameState.Players.Player1.Username),
 				})
 			}
 		}
@@ -123,9 +144,19 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 		if sessionID, exists := playerSession[conn]; exists {
 			delete(playerSession, conn)
 			fmt.Printf("Current player count: %d\n", len(playerSession))
+
 			if gameState, exists := sessions[sessionID]; exists {
-				delete(gameState.Players, conn)
-				if len(gameState.Players) == 0 {
+				gameState.Mu.Lock()
+				defer gameState.Mu.Unlock()
+
+				if gameState.Players.Player1.Conn == conn {
+					gameState.Players.Player1 = gamelogic.Player{}
+				} else if gameState.Players.Player2.Conn == conn {
+					gameState.Players.Player2 = gamelogic.Player{}
+				}
+
+				// If both players have left, remove the game state from sessions
+				if gameState.Players.Player1.Conn == nil && gameState.Players.Player2.Conn == nil {
 					delete(sessions, sessionID)
 					fmt.Printf("Current session count: %d\n", len(sessions))
 
