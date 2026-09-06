@@ -72,10 +72,10 @@ class Game extends Phaser.Scene
             key: 'flag_Idle',
             frames: this.anims.generateFrameNumbers('flag', {
                 start: 0,
-                end: 1
+                end: 5
             }),    
             repeat: -1,
-            frameRate: 4
+            frameRate: 6
         });
 
         // Handle the flag sprite
