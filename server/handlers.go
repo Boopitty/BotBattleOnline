@@ -20,7 +20,7 @@ var upgrader = websocket.Upgrader{
 }
 
 // Handles a websocket request
-func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
+func handleWS() func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil) // Upgrade the request into a websocket
 		if err != nil {
@@ -33,12 +33,12 @@ func handleWS(cfg *config) func(http.ResponseWriter, *http.Request) {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				log.Printf("error reading message: %v", err)
-				processed := Process(cfg, []byte(`{"command":"leave-game"}`), conn) // Ensure the player leaves the game when the connection is closed
+				processed := Process(conn, []byte(`{"command":"leave-game"}`)) // Ensure the player leaves the game when the connection is closed
 				log.Printf("Processed leaveGame response: %s\n", string(processed))
 				break
 			}
 			log.Println("Received message:", string(msg))
-			processed := Process(cfg, msg, conn)
+			processed := Process(conn, msg)
 			conn.WriteMessage(websocket.TextMessage, processed)
 		}
 	}

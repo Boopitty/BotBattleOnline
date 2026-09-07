@@ -29,7 +29,7 @@ func main() {
 	mux.HandleFunc("POST /api/login", cfg.handleLogin)
 	mux.HandleFunc("DELETE /api/deleteUser", cfg.handleDeleteUser)
 	mux.HandleFunc("DELETE /api/resetUsers", cfg.handleReset)
-	mux.HandleFunc("/ws", handleWS(cfg))
+	mux.HandleFunc("/ws", handleWS())
 
 	// create the server object
 	srv := &http.Server{

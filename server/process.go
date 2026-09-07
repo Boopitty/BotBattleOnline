@@ -26,7 +26,7 @@ type Response struct {
 }
 
 // Process websocket requests
-func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
+func Process(conn *websocket.Conn, req []byte) []byte {
 	// Parse the request string into a Request struct
 	var request Request
 	err := json.Unmarshal(req, &request)
@@ -113,7 +113,7 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 				gameState.Players.Player1 = request.User
 				playerSession[conn] = id
 
-				fmt.Printf("Player 1: %s vs Player 2: %s\n", request.User.Username, gameState.Players.Player2.Username)
+				fmt.Printf("Player 1: %s joined Player 2: %s\n", request.User.Username, gameState.Players.Player2.Username)
 				fmt.Printf("Current player count: %d\n", len(playerSession))
 
 				return encoding.MakeJSONResponse(Response{
@@ -124,7 +124,7 @@ func Process(cfg *config, req []byte, conn *websocket.Conn) []byte {
 				gameState.Players.Player2 = request.User
 				playerSession[conn] = id
 
-				fmt.Printf("Player 2: %s vs Player 1: %s\n", request.User.Username, gameState.Players.Player1.Username)
+				fmt.Printf("Player 2: %s joined Player 1: %s\n", request.User.Username, gameState.Players.Player1.Username)
 				fmt.Printf("Current player count: %d\n", len(playerSession))
 
 				return encoding.MakeJSONResponse(Response{
