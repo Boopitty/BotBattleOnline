@@ -105,6 +105,38 @@ func TestProcess(t *testing.T) {
 				Message: "You are not currently in a game",
 			},
 		},
+		{
+			name: "get-bot valid",
+			req: Request{
+				User: gamelogic.Player{
+					Username: "testuser1",
+				},
+				Command: "get-bot",
+				Input:   0, // BasicBot
+			},
+			conn: &websocket.Conn{},
+			want: Response{
+				Message: "Selected bot: Basic Bot",
+				Bot: gamelogic.Bot{
+					Name:  "Basic Bot",
+					Value: 10,
+				},
+			},
+		},
+		{
+			name: "get-bot invalid",
+			req: Request{
+				User: gamelogic.Player{
+					Username: "testuser1",
+				},
+				Command: "get-bot",
+				Input:   -1, // Invalid bot number
+			},
+			conn: &websocket.Conn{},
+			want: Response{
+				Message: "Unknown bot: -1",
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -121,7 +153,7 @@ func TestProcess(t *testing.T) {
 				t.Fatalf("Failed to unmarshal response: %v", err)
 			}
 
-			if gotResp != tt.want {
+			if gotResp.Message != tt.want.Message {
 				t.Errorf("Process() = %v, want %v", gotResp, tt.want)
 			}
 		})

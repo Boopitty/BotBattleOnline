@@ -9,6 +9,7 @@ class Game extends Phaser.Scene
     constructor ()
     {
         super('Game');
+        const team = [];
     }
 
     create ()

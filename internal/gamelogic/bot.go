@@ -1,19 +1,19 @@
 package gamelogic
 
 type Bot struct {
-	Name     string                `json:"name"`
-	Value    int                   `json:"value"`
-	Base_hp  int                   `json:"base_hp"`
-	Hp       int                   `json:"hp"`
-	Base_atk int                   `json:"base_atk"`
-	Atk      int                   `json:"atk"`
-	Base_def int                   `json:"base_def"`
-	Def      int                   `json:"def"`
-	Base_spd int                   `json:"base_spd"`
-	Spd      int                   `json:"spd"`
-	Huge     bool                  `json:"huge"`
-	IsAlive  bool                  `json:"is_alive"`
-	Skills   map[skillIndex]string `json:"skills"`
+	Name     string       `json:"name"`
+	Value    int          `json:"value"`
+	Base_hp  int          `json:"base_hp"`
+	Hp       int          `json:"hp"`
+	Base_atk int          `json:"base_atk"`
+	Atk      int          `json:"atk"`
+	Base_def int          `json:"base_def"`
+	Def      int          `json:"def"`
+	Base_spd int          `json:"base_spd"`
+	Spd      int          `json:"spd"`
+	Huge     bool         `json:"huge"`
+	IsAlive  bool         `json:"is_alive"`
+	Skills   []SkillIndex `json:"skills"`
 }
 
 type BotNum int
@@ -39,7 +39,7 @@ func newBot(name string, value int, hp int, atk int, def int, spd int, huge bool
 		Spd:      spd,
 		Huge:     huge,
 		IsAlive:  true,
-		Skills:   make(map[skillIndex]string, 4),
+		Skills:   make([]SkillIndex, 0, 4),
 	}
 }
 
@@ -56,17 +56,26 @@ func MakeBot(num BotNum) *Bot {
 	}
 }
 
-func (b *Bot) AddSkill(skill skillIndex) bool {
+func (b *Bot) AddSkill(skill SkillIndex) bool {
 	if len(b.Skills) < 4 {
-		skillName := getSkill(skill).name
-		b.Skills[skill] = skillName
+		b.Skills = append(b.Skills, skill)
 		return true
 	}
 	return false
 }
 
-func (b *Bot) RemoveSkill(skill skillIndex) {
-	delete(b.Skills, skill)
+func (b *Bot) RemoveSkill(skill SkillIndex) {
+	for i, s := range b.Skills {
+		if s == skill {
+			b.Skills = append(b.Skills[:i], b.Skills[i+1:]...)
+			break
+		}
+	}
+}
+
+// Get skill from the global SkillList by index. Returns a pointer to the skill.
+func (b *Bot) GetSkill(skill SkillIndex) *Skill {
+	return &SkillList[skill]
 }
 
 func (b *Bot) TakeDamage(damage int) {
@@ -81,9 +90,9 @@ func (b *Bot) TakeDamage(damage int) {
 	}
 }
 
-func (b *Bot) Attack(target *Bot) {
+func (b *Bot) Attack(target *Bot, power int) {
 	if !b.IsAlive {
 		return
 	}
-	target.TakeDamage(b.Atk)
+	target.TakeDamage(b.Atk * power)
 }

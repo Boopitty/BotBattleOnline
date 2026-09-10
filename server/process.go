@@ -21,8 +21,9 @@ type Request struct {
 
 // Struct to be returned to a client
 type Response struct {
-	Message string `json:"message"`
-	Output  any    `json:"output"`
+	Bot     gamelogic.Bot `json:"bot,omitempty"`
+	Message string        `json:"message"`
+	Output  any           `json:"output"`
 }
 
 // Process websocket requests
@@ -175,8 +176,17 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 	case "profile":
 		return encoding.MakeJSONResponse(Response{Message: "profile not implemented yet"})
 
-	case "bots":
-		return encoding.MakeJSONResponse(Response{Message: "bots not implemented yet"})
+	case "get-bot":
+		bot := gamelogic.MakeBot(gamelogic.BotNum(request.Input))
+		if bot == nil {
+			return encoding.MakeJSONResponse(Response{
+				Message: fmt.Sprintf("Unknown bot: %d", request.Input),
+			})
+		}
+		return encoding.MakeJSONResponse(Response{
+			Bot:     *bot,
+			Message: fmt.Sprintf("Selected bot: %s", bot.Name),
+		})
 
 	case "attack":
 		return encoding.MakeJSONResponse(Response{Message: "attack not implemented yet"})
