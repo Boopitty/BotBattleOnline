@@ -1,5 +1,5 @@
 // js/websocket.js
-export { initWebSocket, closeWebSocket, sendRequest };
+export { initWebSocket, closeWebSocket, makeRequest, sendRequest };
 let socket = null;
 
 async function initWebSocket() {
@@ -33,6 +33,21 @@ async function closeWebSocket() {
     } else {
         console.warn("Websocket not found.");
     }
+}
+
+/** 
+ * @Param {string} command - The command to send
+ * @Param {number} input - The input for the command
+ * @returns {string} - The request string in JSON format
+ */
+function makeRequest (command, input = 0) {
+    return JSON.stringify({
+        User: {
+            username: localStorage.getItem("username"),
+        },
+        command: command,
+        input: input
+    });
 }
 
 /**

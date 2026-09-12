@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-
+import { initWebSocket } from "../websocket.js"
 export default class MainMenu extends Phaser.Scene
 {
     constructor ()
@@ -17,14 +17,10 @@ export default class MainMenu extends Phaser.Scene
             color: '#8bb2ff',
         }).setOrigin(0.5);
 
-        this.add.text(cx, cy + 24, 'Click to start', {
-            font: '18px monospace',
-            color: '#ffe1da',
-        }).setOrigin(0.5);
-
-        this.input.once('pointerdown', () =>
-        {
+        this.rightButton = this.add.image(cx, cy + 24, 'Login_Button').setInteractive().on('pointerup', () => {
+            initWebSocket();
             this.scene.start('Game');
         });
+        this.rightButton.setScale(2);
     }
 }
