@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/Boopitty/BotBattleOnline/internal/auth"
 	"github.com/Boopitty/BotBattleOnline/internal/database"
 	"github.com/Boopitty/BotBattleOnline/internal/encoding"
+	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
 	"github.com/gorilla/websocket"
 
 	"github.com/google/uuid"
@@ -209,4 +211,23 @@ func (c *config) handleReset(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("!!! Database has been RESET !!!")
 	encoding.RespondWithJSON(w, http.StatusOK, struct{}{})
+}
+
+func (c *config) handleGetBot(w http.ResponseWriter, r *http.Request) {
+	req := struct {
+		Input string `json:"input"`
+	}{}
+
+	success := encoding.DecodeJSON(w, r, &req)
+	if !success {
+		return
+	}
+
+	bot := gamelogic.MakeBot(gamelogic.BotType(req.Input))
+	if bot == nil {
+		encoding.RespondWithError(w, http.StatusBadRequest, fmt.Errorf("unknown bot: %s", req.Input))
+		return
+	}
+
+	encoding.RespondWithJSON(w, http.StatusOK, bot)
 }

@@ -9,7 +9,7 @@ class Game extends Phaser.Scene
     constructor ()
     {
         super('Game');
-        const team = [];
+        this.team = [];
     }
 
     create ()
@@ -74,6 +74,29 @@ class Game extends Phaser.Scene
             repeat: repeat,
             frameRate: frameRate
         });
+    }
+
+    addToTeam(botName) {
+        if (this.team.length < 6) {
+            if (!this.team.includes(botName)) {
+                this.team.push(botName);
+                console.log(`Added ${botName} to team. Current team: ${this.team}`);
+            } else {
+                console.log(`${botName} is already in the team.`);
+            }
+        } else {
+            console.log("Team is full. Cannot add more bots.");
+        }
+    }
+
+    removeFromTeam(botName) {
+        const index = this.team.indexOf(botName);
+        if (index > -1) {
+            this.team.splice(index, 1);
+            console.log(`Removed ${botName} from team. Current team: ${this.team}`);
+        } else {
+            console.log(`${botName} is not in the team.`);
+        }
     }
 }
 

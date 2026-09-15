@@ -42,13 +42,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 	case "help":
 		return encoding.MakeJSONResponse(Response{Message: "Available commands: help, profile, bots, attack, quit"})
 
-	case "select-bot":
-		var bot *gamelogic.Bot
-		if request.Input >= 0 {
-			bot = gamelogic.MakeBot(gamelogic.BotNum(request.Input))
-		}
-		return encoding.MakeJSONResponse(Response{Message: fmt.Sprintf("Selected: %s", bot.Name)})
-
 	case "make-team":
 		return encoding.MakeJSONResponse(Response{Message: "makeTeam not implemented yet"})
 
@@ -175,18 +168,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 
 	case "profile":
 		return encoding.MakeJSONResponse(Response{Message: "profile not implemented yet"})
-
-	case "get-bot":
-		bot := gamelogic.MakeBot(gamelogic.BotNum(request.Input))
-		if bot == nil {
-			return encoding.MakeJSONResponse(Response{
-				Message: fmt.Sprintf("Unknown bot: %d", request.Input),
-			})
-		}
-		return encoding.MakeJSONResponse(Response{
-			Bot:     *bot,
-			Message: fmt.Sprintf("Selected bot: %s", bot.Name),
-		})
 
 	case "attack":
 		return encoding.MakeJSONResponse(Response{Message: "attack not implemented yet"})
