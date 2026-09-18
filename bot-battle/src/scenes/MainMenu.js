@@ -17,10 +17,44 @@ export default class MainMenu extends Phaser.Scene
             color: '#8bb2ff',
         }).setOrigin(0.5);
 
-        this.rightButton = this.add.image(cx, cy + 24, 'Login_Button').setInteractive().on('pointerup', () => {
+        // Place login button
+        this.rightButton = this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerup', () => {
             initWebSocket();
             this.scene.start('Game');
         });
         this.rightButton.setScale(2);
+
+        // Handle the flag sprite
+        this.createAnim("Flag", "Idle", 0, 5, -1, 6);
+        this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
+        this.flag.setInteractive().on('pointerup', () => {
+            this.scene.start('TeamSelect');
+        }); 
     }
+
+    /**
+     * Creates animations for a given bot.
+     * @param {string} botName 
+     * @param {string} animType 
+     * @param {integer} startFrame 
+     * @param {integer} endFrame 
+     * @param {integer} repeat 
+     * @param {integer} frameRate 
+    */
+    createAnim(botName, animType, startFrame, endFrame, repeat, frameRate) {
+        const animName = `${botName}_${animType}`
+        if (this.anims.exists(animName)) {
+            return;
+        }
+        this.anims.create({
+            key: animName,
+            frames: this.anims.generateFrameNumbers(botName, {
+                start: startFrame,
+                end: endFrame
+            }),    
+            repeat: repeat,
+            frameRate: frameRate
+        });
+        return;
+    };
 }

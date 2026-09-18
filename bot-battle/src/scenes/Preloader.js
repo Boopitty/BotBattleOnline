@@ -39,7 +39,7 @@ export default class Preloader extends Phaser.Scene
             ["Scarab", "Robots/Scarab.png", 16, 16],
             ["Spider", "Robots/Spider.png", 16, 16],
             ["Wasp", "Robots/Wasp.png", 16, 16],
-            ["flag", "UI/objective-flag.png", 64, 64],
+            ["Flag", "UI/objective-flag.png", 64, 64],
         ];
 
         for (const [fileName, filePath, width, height] of spritesheets) {
