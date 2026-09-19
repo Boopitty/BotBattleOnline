@@ -49,6 +49,9 @@ export default class Preloader extends Phaser.Scene
                 { frameWidth: width, frameHeight: height }
             );
         }
+
+        this.load.atlas("sci_fi_buttons", "../../assets/sci_fi_buttons_dark.png", "../../assets/sci_fi_buttons_dark.json")
+
         this.load.image('Login_Button', '../../assets/Login.png');
         this.load.image('Logout_Button', '../../assets/Logout.png');
         this.load.image('dagger-64', '../../assets/dagger-64.png');
