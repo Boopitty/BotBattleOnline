@@ -5,13 +5,18 @@ export default class TeamSelect extends Phaser.Scene
     constructor ()
     {
         super('TeamSelect');
-        this.team = []
+        this.team = [];
+    }
+
+    init (team = [])
+    {
+        this.team = team;
     }
 
     create ()
     {
         this.leftButton = this.add.image(100, 100, 'Logout_Button').setInteractive().on('pointerup', () => {       
-            this.scene.start('MainMenu');
+            this.scene.start('MainMenu', this.team);
         })
         this.leftButton.setScale(3);
 
@@ -20,27 +25,39 @@ export default class TeamSelect extends Phaser.Scene
         this.assault.setInteractive().on('pointerup', () => {
             if (this.team.includes("Assault")) {
                 this.removeFromTeam("Assault");
-                return;
+            } else {
+                this.addToTeam("Assault");
             }
-            this.addToTeam("Assault");
         });
 
         this.createAnim("Grenadier", "Idle", 0, 1, -1, 2);
         this.grenadier = this.add.sprite(150, 568, 'Grenadier').play('Grenadier_Idle').setScale(5);
         this.grenadier.setInteractive().on('pointerup', () => {
-            this.addToTeam("Grenadier");
+            if (this.team.includes("Grenadier")) {
+                this.removeFromTeam("Grenadier");
+            } else {
+                this.addToTeam("Grenadier");
+            }
         });
 
         this.createAnim("Sniper", "Idle", 0, 1, -1, 2);
         this.sniper = this.add.sprite(225, 568, 'Sniper').play('Sniper_Idle').setScale(5);
         this.sniper.setInteractive().on('pointerup', () => {
-            this.addToTeam("Sniper");
+            if (this.team.includes("Sniper")) {
+                this.removeFromTeam("Sniper");
+            } else {
+                this.addToTeam("Sniper");
+            }
         });
 
         this.createAnim("Spider", "Idle", 0, 1, -1, 2);
         this.spider = this.add.sprite(75, 668, 'Spider').play('Spider_Idle').setScale(5);
         this.spider.setInteractive().on('pointerup', () => {
-            this.addToTeam("Spider");
+            if (this.team.includes("Spider")) {
+                this.removeFromTeam("Spider");
+            } else {
+                this.addToTeam("Spider");
+            }
         });
     }
 

@@ -1,11 +1,16 @@
 import Phaser from "phaser";
 import { initWebSocket, closeWebSocket, makeRequest, sendRequest } from "../websocket.js"
-export default class Game extends Phaser.Scene
+export default class Battle extends Phaser.Scene
 {
     constructor ()
     {
-        super('Game');
+        super('Battle');
         this.team = [];
+    }
+
+    init (team = [])
+    {
+        this.team = team;
     }
 
     create ()
@@ -15,6 +20,7 @@ export default class Game extends Phaser.Scene
 
         this.leftButton = this.add.image(100, 100, 'Logout_Button').setInteractive().on('pointerup', () => {       
             closeWebSocket();
+            
             this.scene.start('MainMenu');
         })
         this.leftButton.setScale(3);

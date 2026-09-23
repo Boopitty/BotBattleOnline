@@ -5,6 +5,12 @@ export default class MainMenu extends Phaser.Scene
     constructor ()
     {
         super('MainMenu');
+        this.team = [];
+    }
+
+    init (team)
+    {
+        this.team = team;
     }
 
     create ()
@@ -20,7 +26,7 @@ export default class MainMenu extends Phaser.Scene
         // Place login button
         this.rightButton = this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerup', () => {
             initWebSocket();
-            this.scene.start('Game');
+            this.scene.start('Battle');
         });
         this.rightButton.setScale(2);
 
@@ -31,18 +37,25 @@ export default class MainMenu extends Phaser.Scene
             3,
             'sci_fi_buttons',
             'start',
-            'start_01', 'start_02', 'start_03'
+            'start_01',
+            () => {
+                if (this.team.length > 0) {
+                    this.scene.start('Battle', this.team);
+                } else {
+                    console.warn('You cannnot fight without a team!')
+                }
+            }
         )
 
         // Handle the flag sprite
         this.createAnim("Flag", "Idle", 0, 5, -1, 6);
         this.flag = this.add.sprite(cx/2, 564, 'Flag').play('Flag_Idle').setScale(5);
         this.flag.setInteractive().on('pointerup', () => {
-            this.scene.start('TeamSelect');
+            this.scene.start('TeamSelect', this.team);
         }); 
     }
 
-    makeButton (x, y, scale, texture, btnName, idleFrame, movingFrame, downFrame)
+    makeButton (x, y, scale, texture, btnName, idleFrame, interact)
     {
         const button = this.add.sprite(x, y, texture, idleFrame).setScale(scale);
 
@@ -53,10 +66,10 @@ export default class MainMenu extends Phaser.Scene
 
         button.on('pointerdown', () => {
             button.play(`${btnName}_press`)
-        })
-        button.on('pointerup', () => {
             button.play(`${btnName}_release`)
         })
+        button.on('pointerup', interact);
+        return button
     }
 
     createButtonAnim (btnName, animType, texture, start, end)
@@ -75,7 +88,7 @@ export default class MainMenu extends Phaser.Scene
                 zeroPad: 2
             }),
             repeat: 0,
-            frameRate: 30
+            frameRate: 10
         })
     }
 

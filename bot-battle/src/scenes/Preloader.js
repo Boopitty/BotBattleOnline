@@ -63,6 +63,6 @@ export default class Preloader extends Phaser.Scene
         /* phaser:assets:setup:start */
         /* phaser:assets:setup:end */
 
-        this.scene.start('MainMenu');
+        this.scene.start('MainMenu', []);
     }
 }

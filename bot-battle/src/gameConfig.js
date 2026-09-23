@@ -3,7 +3,7 @@ import Boot from "./scenes/Boot.js";
 import MainMenu from "./scenes/MainMenu.js";
 import Preloader from "./scenes/Preloader.js";
 import TeamSelect from "./scenes/TeamSelect.js";
-import Game from "./scenes/Game.js"
+import Battle from "./scenes/Battle.js"
 
 const config = {
     type: Phaser.AUTO,
@@ -15,7 +15,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT
     },
-    scene: [Boot, Preloader, MainMenu, TeamSelect, Game],
+    scene: [Boot, Preloader, MainMenu, TeamSelect, Battle],
 }
 
 // Bind the game to a top-level identifier
