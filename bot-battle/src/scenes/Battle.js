@@ -11,34 +11,12 @@ export default class Battle extends Phaser.Scene
     init (team = [])
     {
         this.team = team;
+        initWebSocket();
     }
 
     create ()
     {
-        const cx = this.scale.width / 2;
-        const cy = this.scale.height / 2;
-
-        this.leftButton = this.add.image(100, 100, 'Logout_Button').setInteractive().on('pointerup', () => {       
-            closeWebSocket();
-            
-            this.scene.start('MainMenu');
-        })
-        this.leftButton.setScale(3);
-
-        // Handle the Assault_Class sprite
-        this.createAnim("Assault", "Idle", 0, 1, -1, 2);
-        this.assault = this.add.sprite(824, 500, 'Assault').play('Assault_Idle').setScale(15);
-        this.assault.flipX = true;
-        this.assault.setInteractive().on('pointerup', () => {
-            sendRequest(makeRequest("leave-game"));
-        });
-        
-        // Handle the Spider sprite
-        this.createAnim("Spider", "Idle", 0, 1, -1, 2);
-        this.spider = this.add.sprite(224, 500, 'Spider').play('Spider_Idle').setScale(15);
-        this.spider.setInteractive().on('pointerup', () => {
-            sendRequest(makeRequest("new-game"));
-        });
+        this.makeButtons();
 
         // Handle the flag sprite
         this.createAnim("Flag", "Idle", 0, 5, -1, 6);
@@ -46,6 +24,46 @@ export default class Battle extends Phaser.Scene
         this.flag.setInteractive().on('pointerup', () => {
             sendRequest(makeRequest("join-game"));
         }); 
+    }
+
+    // Creates all buttons for this scene
+    makeButtons ()
+    {
+        const cx = this.scale.width / 2;
+
+        this.makeButton(
+            cx / 2,
+            100,
+            3,
+            'sci_fi_buttons',
+            'quit',
+            () => {
+                closeWebSocket();
+                this.scene.start('MainMenu', this.team);
+            }
+        );
+
+        this.makeButton(
+            cx,
+            100,
+            3,
+            'sci_fi_buttons',
+            'leave',
+            () => {
+                sendRequest(makeRequest("leave-game"));
+            }
+        );
+
+        this.makeButton(
+            cx * 1.5,
+            100,
+            3,
+            'sci_fi_buttons',
+            'start',
+            () => {
+                sendRequest(makeRequest("new-game"));
+            }
+        );
     }
 
     /**
@@ -57,7 +75,8 @@ export default class Battle extends Phaser.Scene
      * @param {integer} repeat 
      * @param {integer} frameRate 
     */
-    createAnim(botName, animType, startFrame, endFrame, repeat, frameRate) {
+    createAnim (botName, animType, startFrame, endFrame, repeat, frameRate)
+    {
         const animName = `${botName}_${animType}`
         if (this.anims.exists(animName)) {
             return;
@@ -73,4 +92,58 @@ export default class Battle extends Phaser.Scene
         });
         return;
     };
+
+    /**
+     * Creates an animated button.
+     * @param {Number} x
+     * @param {Number} y 
+     * @param {Number} scale 
+     * @param {String} texture 
+     * @param {String} btnName 
+     * @param {func} interact 
+    */
+    makeButton (x, y, scale, texture, btnName, interact)
+    {
+        const button = this.add.sprite(x, y, texture, `${btnName}_01`).setScale(scale);
+
+        button.setInteractive({ useHandCursor: true });
+
+        this.createButtonAnim(btnName, 'press', texture, 1, 3);
+        this.createButtonAnim(btnName, 'release', texture, 3, 1);
+
+        button.on('pointerdown', () => {
+            button.play(`${btnName}_press`);
+            button.play(`${btnName}_release`);
+        })
+        button.on('pointerup', interact);
+        return button
+    }
+
+    /**
+     * Constructs animation for given button
+     * @param {String} btnName
+     * @param {String} animType
+     * @param {String} texture
+     * @param {Number} start
+     * @param {Number} end
+    */ 
+    createButtonAnim (btnName, animType, texture, start, end)
+    {
+        const animName = `${btnName}_${animType}`
+        if (this.anims.exists(animName)) {
+            return;
+        }
+
+        this.anims.create({
+            key: animName,
+            frames: this.anims.generateFrameNames(texture, {
+                prefix: `${btnName}_`,
+                start: start,
+                end: end,
+                zeroPad: 2
+            }),
+            repeat: 0,
+            frameRate: 10
+        });
+    }
 }

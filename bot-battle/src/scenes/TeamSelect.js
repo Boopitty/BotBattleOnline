@@ -6,11 +6,13 @@ export default class TeamSelect extends Phaser.Scene
     {
         super('TeamSelect');
         this.team = [];
+        this.teamSprites = [];
     }
 
     init (team = [])
     {
         this.team = team;
+        this.teamSprites = [];
     }
 
     create ()
@@ -20,6 +22,24 @@ export default class TeamSelect extends Phaser.Scene
         })
         this.leftButton.setScale(3);
 
+        this.displayTeam();
+        this.displayBots();
+    }
+
+    // Clear the displayed team sprites, then re-display them based on the current team contents.
+    displayTeam ()
+    {
+        for (const i in this.teamSprites) {
+            this.teamSprites[i].removeFromDisplayList();
+        }
+        for (const i in this.team) {
+            this.teamSprites.push(this.add.sprite(150 * (Number(i)+1), 300, this.team[i]).setScale(10))
+        }
+    }
+
+    // Display all available bots.
+    displayBots ()
+    {
         this.createAnim("Assault", "Idle", 0, 1, -1, 2);
         this.assault = this.add.sprite(75, 568, 'Assault').play('Assault_Idle').setScale(5);
         this.assault.setInteractive().on('pointerup', () => {
@@ -61,7 +81,8 @@ export default class TeamSelect extends Phaser.Scene
         });
     }
 
-    addToTeam(botName) {
+    addToTeam (botName)
+    {
         if (this.team.length < 6) {
             if (!this.team.includes(botName)) {
                 this.team.push(botName);
@@ -72,9 +93,11 @@ export default class TeamSelect extends Phaser.Scene
         } else {
             console.log("Team is full. Cannot add more bots.");
         }
+        this.displayTeam();
     }
 
-    removeFromTeam(botName) {
+    removeFromTeam (botName)
+    {
         const index = this.team.indexOf(botName);
         if (index > -1) {
             this.team.splice(index, 1);
@@ -82,6 +105,7 @@ export default class TeamSelect extends Phaser.Scene
         } else {
             console.log(`${botName} is not in the team.`);
         }
+        this.displayTeam();
     }
 
     /**
@@ -93,7 +117,8 @@ export default class TeamSelect extends Phaser.Scene
      * @param {integer} repeat 
      * @param {integer} frameRate 
     */
-    createAnim(botName, animType, startFrame, endFrame, repeat, frameRate) {
+    createAnim (botName, animType, startFrame, endFrame, repeat, frameRate)
+    {
         const animName = `${botName}_${animType}`
         if (this.anims.exists(animName)) {
             return;

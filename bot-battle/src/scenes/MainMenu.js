@@ -23,16 +23,9 @@ export default class MainMenu extends Phaser.Scene
             color: '#8bb2ff',
         }).setOrigin(0.5);
 
-        // Place login button
-        this.rightButton = this.add.image(100, 100, 'Login_Button').setInteractive().on('pointerup', () => {
-            initWebSocket();
-            this.scene.start('Battle');
-        });
-        this.rightButton.setScale(2);
-
         // Place the start button
-        const startButton = this.makeButton(
-            cx/2 + 100,
+        this.makeButton(
+            cx,
             100,
             3,
             'sci_fi_buttons',
@@ -55,6 +48,16 @@ export default class MainMenu extends Phaser.Scene
         }); 
     }
 
+    /**
+     * Creates an animated button.
+     * @param {Number} x
+     * @param {Number} y 
+     * @param {Number} scale 
+     * @param {String} texture 
+     * @param {String} btnName 
+     * @param {String} idleFrame
+     * @param {func} interact 
+    */
     makeButton (x, y, scale, texture, btnName, idleFrame, interact)
     {
         const button = this.add.sprite(x, y, texture, idleFrame).setScale(scale);
@@ -65,13 +68,21 @@ export default class MainMenu extends Phaser.Scene
         this.createButtonAnim(btnName, 'release', texture, 3, 1);
 
         button.on('pointerdown', () => {
-            button.play(`${btnName}_press`)
-            button.play(`${btnName}_release`)
+            button.play(`${btnName}_press`);
+            button.play(`${btnName}_release`);
         })
         button.on('pointerup', interact);
         return button
     }
 
+    /**
+     * Constructs animation for given button
+     * @param {String} btnName
+     * @param {String} animType
+     * @param {String} texture
+     * @param {Number} start
+     * @param {Number} end
+    */ 
     createButtonAnim (btnName, animType, texture, start, end)
     {
         const animName = `${btnName}_${animType}`
@@ -89,7 +100,7 @@ export default class MainMenu extends Phaser.Scene
             }),
             repeat: 0,
             frameRate: 10
-        })
+        });
     }
 
     /**
