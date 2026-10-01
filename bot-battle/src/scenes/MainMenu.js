@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import { initWebSocket } from "../websocket.js"
 export default class MainMenu extends Phaser.Scene
 {
     constructor ()

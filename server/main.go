@@ -30,6 +30,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/deleteUser", cfg.handleDeleteUser)
 	mux.HandleFunc("DELETE /api/resetUsers", cfg.handleReset)
 	mux.HandleFunc("GET /api/getBot", cfg.handleGetBot)
+	mux.HandleFunc("POST /api/saveTeam", cfg.handleSaveTeam)
 	mux.HandleFunc("/ws", handleWS())
 
 	// create the server object

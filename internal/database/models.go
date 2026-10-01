@@ -10,6 +10,15 @@ import (
 	"github.com/google/uuid"
 )
 
+type Bot struct {
+	ID        uuid.UUID `json:"id"`
+	BotName   string    `json:"bot_name"`
+	Skills    []int32   `json:"skills"`
+	OwnerID   uuid.UUID `json:"owner_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type User struct {
 	ID             uuid.UUID `json:"id"`
 	Username       string    `json:"username"`

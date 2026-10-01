@@ -18,6 +18,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+document.getElementById("reset").addEventListener("click", async () => {
+    console.log("Resetting database...");
+    try {
+        const resp = await fetch("/api/resetUsers", {
+            method: "DELETE"
+        });
+        const data = resp.json();
+        if (!resp.ok) {
+            throw Error(`Reset Failed: ${data.error}`)
+        }
+        console.log("Database reset successful");
+    } catch (error) {
+        alert(`Error: ${error}`);
+        console.error("Database reset failed")
+    }
+})
+
 // display login form
 document.getElementById("login").addEventListener("click", () => {
     console.log("displaying login form...");
@@ -201,17 +218,3 @@ function commandHandler(log) {
     const logContainer = document.getElementById("command-log");
     logContainer.prepend(text);
 }
-
-async function resetUsers() {
-    console.log("Resetting database...");
-    try {
-        const resp = await fetch("/api/resetUsers", {
-            method: "DELETE"
-        });
-        console.log("Database reset successful");
-    } catch (error) {
-        alert(`Error: ${error}`);
-        console.error("Database reset failed")
-    }
-}
-

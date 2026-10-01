@@ -1,5 +1,4 @@
 import Phaser from "phaser"
-
 export default class TeamSelect extends Phaser.Scene
 {
     constructor ()
@@ -17,13 +16,81 @@ export default class TeamSelect extends Phaser.Scene
 
     create ()
     {
-        this.leftButton = this.add.image(100, 100, 'Logout_Button').setInteractive().on('pointerup', () => {       
-            this.scene.start('MainMenu', this.team);
-        })
-        this.leftButton.setScale(3);
-
+        this.makeButtons();
         this.displayTeam();
         this.displayBots();
+    }
+
+    makeButtons ()
+    {
+        const cx = this.scale.width / 2;
+
+        this.makeButton(
+            150,
+            100,
+            3,
+            'sci_fi_buttons',
+            'leave',
+            () => {
+                this.scene.start('MainMenu', this.team);
+            }
+        );
+        
+        this.makeButton(
+            cx,
+            100,
+            3,
+            'sci_fi_buttons',
+            'yes',
+            () => {
+                this.saveTeam();
+            }
+        );
+    }
+
+    makeButton (x, y, scale, texture, btnName, interact)
+    {
+        const button = this.add.sprite(x, y, texture, `${btnName}_01`).setScale(scale);
+
+        button.setInteractive({ useHandCursor: true });
+
+        this.createButtonAnim(btnName, 'press', texture, 1, 3);
+        this.createButtonAnim(btnName, 'release', texture, 3, 1);
+
+        button.on('pointerdown', () => {
+            button.play(`${btnName}_press`);
+            button.play(`${btnName}_release`);
+        })
+        button.on('pointerup', interact);
+        return button
+    }
+
+    /**
+     * Constructs animation for given button
+     * @param {String} btnName
+     * @param {String} animType
+     * @param {String} texture
+     * @param {Number} start
+     * @param {Number} end
+    */ 
+    createButtonAnim (btnName, animType, texture, start, end)
+    {
+        const animName = `${btnName}_${animType}`
+        if (this.anims.exists(animName)) {
+            return;
+        }
+
+        this.anims.create({
+            key: animName,
+            frames: this.anims.generateFrameNames(texture, {
+                prefix: `${btnName}_`,
+                start: start,
+                end: end,
+                zeroPad: 2
+            }),
+            repeat: 0,
+            frameRate: 10
+        });
     }
 
     // Clear the displayed team sprites, then re-display them based on the current team contents.
@@ -106,6 +173,32 @@ export default class TeamSelect extends Phaser.Scene
             console.log(`${botName} is not in the team.`);
         }
         this.displayTeam();
+    }
+
+    // Save the current team in the database
+    async saveTeam ()
+    {
+        try {
+            const resp = await fetch("/api/saveTeam", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    token: localStorage.getItem("token"),
+                    team: this.team
+                })
+            });
+
+            const data = await resp.json();
+            if (!resp.ok) {
+                console.log(`error: ${data.error}`);
+            } else {
+                console.log(data.message);
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
     }
 
     /**

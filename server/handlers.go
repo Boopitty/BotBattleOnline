@@ -135,7 +135,7 @@ func (c *config) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.MakeJWT(user.ID, c.secret, time.Minute*5)
+	token, err := auth.MakeJWT(user.ID, c.secret, time.Hour*5)
 	if err != nil {
 		encoding.RespondWithError(w, http.StatusInternalServerError, err)
 		return
@@ -215,19 +215,63 @@ func (c *config) handleReset(w http.ResponseWriter, r *http.Request) {
 
 func (c *config) handleGetBot(w http.ResponseWriter, r *http.Request) {
 	req := struct {
-		Input string `json:"input"`
+		BotName string `json:"BotName"`
 	}{}
 
 	success := encoding.DecodeJSON(w, r, &req)
 	if !success {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
 		return
 	}
 
-	bot := gamelogic.MakeBot(gamelogic.BotType(req.Input))
+	bot := gamelogic.MakeBot(gamelogic.BotType(req.BotName))
 	if bot == nil {
-		encoding.RespondWithError(w, http.StatusBadRequest, fmt.Errorf("unknown bot: %s", req.Input))
+		encoding.RespondWithError(w, http.StatusBadRequest, fmt.Errorf("unknown bot: %s", req.BotName))
 		return
 	}
 
 	encoding.RespondWithJSON(w, http.StatusOK, bot)
+}
+
+func (c *config) handleSaveTeam(w http.ResponseWriter, r *http.Request) {
+	req := struct {
+		Token string   `json:"Token"`
+		Team  []string `json:"Team"`
+	}{}
+
+	success := encoding.DecodeJSON(w, r, &req)
+	if !success {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+
+	userID, err := auth.ValidateJWT(req.Token, c.secret)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid Token"))
+		return
+	}
+
+	err = c.db.DeleteUserTeam(r.Context(), userID) // Delete existing teams for the user
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+
+	for i := 0; i < len(req.Team); i++ {
+		c.db.CreateBot(r.Context(), database.CreateBotParams{
+			ID:        uuid.New(),
+			BotName:   req.Team[i],
+			OwnerID:   userID,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		})
+		log.Printf("Bot saved; Name: %s, Owner: %s", req.Team[i], userID)
+	}
+
+	response := struct {
+		Message string `json:"message"`
+	}{
+		Message: "Team saved successfully",
+	}
+	encoding.RespondWithJSON(w, http.StatusCreated, response)
 }
