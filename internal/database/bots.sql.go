@@ -14,13 +14,14 @@ import (
 )
 
 const createBot = `-- name: CreateBot :one
-INSERT INTO bots (id, bot_name, owner_id, created_at, updated_at)
+INSERT INTO bots (id, bot_name, skills, owner_id, created_at, updated_at)
 VALUES (
     $1,
     $2,
     $3,
     $4,
-    $5
+    $5,
+    $6
 )
 RETURNING id, bot_name, skills, owner_id, created_at, updated_at
 `
@@ -28,6 +29,7 @@ RETURNING id, bot_name, skills, owner_id, created_at, updated_at
 type CreateBotParams struct {
 	ID        uuid.UUID `json:"id"`
 	BotName   string    `json:"bot_name"`
+	Skills    []int32   `json:"skills"`
 	OwnerID   uuid.UUID `json:"owner_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -37,6 +39,7 @@ func (q *Queries) CreateBot(ctx context.Context, arg CreateBotParams) (Bot, erro
 	row := q.db.QueryRowContext(ctx, createBot,
 		arg.ID,
 		arg.BotName,
+		pq.Array(arg.Skills),
 		arg.OwnerID,
 		arg.CreatedAt,
 		arg.UpdatedAt,
@@ -92,6 +95,17 @@ func (q *Queries) GetBotbyID(ctx context.Context, id uuid.UUID) (Bot, error) {
 	return i, err
 }
 
+const getNumBots = `-- name: GetNumBots :one
+SELECT COUNT(*) FROM bots
+`
+
+func (q *Queries) GetNumBots(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getNumBots)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getUserTeam = `-- name: GetUserTeam :many
 SELECT id, bot_name, skills, owner_id, created_at, updated_at FROM bots
 WHERE owner_id = $1
@@ -117,6 +131,34 @@ func (q *Queries) GetUserTeam(ctx context.Context, ownerID uuid.UUID) ([]Bot, er
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserTeamNames = `-- name: GetUserTeamNames :many
+SELECT bot_name FROM bots
+WHERE owner_id = $1
+`
+
+func (q *Queries) GetUserTeamNames(ctx context.Context, ownerID uuid.UUID) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getUserTeamNames, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var bot_name string
+		if err := rows.Scan(&bot_name); err != nil {
+			return nil, err
+		}
+		items = append(items, bot_name)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

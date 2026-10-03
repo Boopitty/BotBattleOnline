@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { initWebSocket, closeWebSocket, makeRequest, sendRequest } from "../websocket.js"
+import { getSavedTeam } from "../api";
 export default class Battle extends Phaser.Scene
 {
     constructor ()
@@ -8,9 +9,12 @@ export default class Battle extends Phaser.Scene
         this.team = [];
     }
 
-    init (team = [])
+    init ()
     {
-        this.team = team;
+        this.team = [];
+        getSavedTeam().then((savedTeam) => {
+            this.team = savedTeam;
+        });
         initWebSocket();
     }
 
@@ -39,7 +43,7 @@ export default class Battle extends Phaser.Scene
             'quit',
             () => {
                 closeWebSocket();
-                this.scene.start('MainMenu', this.team);
+                this.scene.start('MainMenu');
             }
         );
 

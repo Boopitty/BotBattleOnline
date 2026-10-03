@@ -1,11 +1,12 @@
 -- name: CreateBot :one
-INSERT INTO bots (id, bot_name, owner_id, created_at, updated_at)
+INSERT INTO bots (id, bot_name, skills, owner_id, created_at, updated_at)
 VALUES (
     $1,
     $2,
     $3,
     $4,
-    $5
+    $5,
+    $6
 )
 RETURNING *;
 
@@ -20,6 +21,13 @@ WHERE id = $1;
 -- name: GetUserTeam :many
 SELECT * FROM bots
 WHERE owner_id = $1;
+
+-- name: GetUserTeamNames :many
+SELECT bot_name FROM bots
+WHERE owner_id = $1;
+
+-- name: GetNumBots :one
+SELECT COUNT(*) FROM bots;
 
 -- name: DeleteUserTeam :exec
 DELETE FROM bots

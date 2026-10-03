@@ -1,4 +1,5 @@
 import Phaser from "phaser"
+import { getSavedTeam } from "../api";
 export default class TeamSelect extends Phaser.Scene
 {
     constructor ()
@@ -8,16 +9,20 @@ export default class TeamSelect extends Phaser.Scene
         this.teamSprites = [];
     }
 
-    init (team = [])
+    init ()
     {
-        this.team = team;
+        this.team = [];
         this.teamSprites = [];
+
+        getSavedTeam().then((savedTeam) => {
+            this.team = savedTeam;
+            this.displayTeam();
+        });
     }
 
     create ()
     {
         this.makeButtons();
-        this.displayTeam();
         this.displayBots();
     }
 
@@ -32,7 +37,7 @@ export default class TeamSelect extends Phaser.Scene
             'sci_fi_buttons',
             'leave',
             () => {
-                this.scene.start('MainMenu', this.team);
+                this.scene.start('MainMenu');
             }
         );
         

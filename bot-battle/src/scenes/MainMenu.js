@@ -4,12 +4,6 @@ export default class MainMenu extends Phaser.Scene
     constructor ()
     {
         super('MainMenu');
-        this.team = [];
-    }
-
-    init (team)
-    {
-        this.team = team;
     }
 
     create ()
@@ -32,7 +26,7 @@ export default class MainMenu extends Phaser.Scene
             'start_01',
             () => {
                 if (this.team.length > 0) {
-                    this.scene.start('Battle', this.team);
+                    this.scene.start('Battle');
                 } else {
                     console.warn('You cannnot fight without a team!')
                 }

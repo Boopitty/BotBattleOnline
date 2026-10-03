@@ -257,16 +257,29 @@ func (c *config) handleSaveTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Saving team for user %s: \n%v", userID, req.Team)
 	for i := 0; i < len(req.Team); i++ {
-		c.db.CreateBot(r.Context(), database.CreateBotParams{
+		_, err := c.db.CreateBot(r.Context(), database.CreateBotParams{
 			ID:        uuid.New(),
 			BotName:   req.Team[i],
+			Skills:    make([]int32, 0), // Placeholder for skills, adjust as needed
 			OwnerID:   userID,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		})
-		log.Printf("Bot saved; Name: %s, Owner: %s", req.Team[i], userID)
+		if err != nil {
+			encoding.RespondWithError(w, http.StatusInternalServerError, err)
+			return
+		}
+		log.Printf("Bot saved: %s", req.Team[i])
 	}
+
+	botCount, err := c.db.GetNumBots(r.Context())
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+	log.Printf("Total number of bots in the database: %d", botCount)
 
 	response := struct {
 		Message string `json:"message"`
@@ -274,4 +287,33 @@ func (c *config) handleSaveTeam(w http.ResponseWriter, r *http.Request) {
 		Message: "Team saved successfully",
 	}
 	encoding.RespondWithJSON(w, http.StatusCreated, response)
+}
+
+func (c *config) handleGetTeamNames(w http.ResponseWriter, r *http.Request) {
+	token, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+
+	userID, err := auth.ValidateJWT(token, c.secret)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid Token"))
+		return
+	}
+
+	team, err := c.db.GetUserTeamNames(r.Context(), userID)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+
+	log.Printf("Retrieved team for user %s:\n %v", userID, team)
+
+	response := struct {
+		Team []string `json:"team"`
+	}{
+		Team: team,
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, response)
 }
