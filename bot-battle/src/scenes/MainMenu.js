@@ -25,11 +25,7 @@ export default class MainMenu extends Phaser.Scene
             'start',
             'start_01',
             () => {
-                if (this.team.length > 0) {
-                    this.scene.start('Battle');
-                } else {
-                    console.warn('You cannnot fight without a team!')
-                }
+                this.scene.start('Battle');
             }
         )
 

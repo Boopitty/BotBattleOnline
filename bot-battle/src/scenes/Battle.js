@@ -26,7 +26,11 @@ export default class Battle extends Phaser.Scene
         this.createAnim("Flag", "Idle", 0, 5, -1, 6);
         this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
         this.flag.setInteractive().on('pointerup', () => {
-            sendRequest(makeRequest("join-game"));
+            if (this.team.length > 0) {
+                sendRequest(makeRequest("join-game"));
+            } else {
+                console.warn('You cannot join a game without a team!')
+            }
         }); 
     }
 
@@ -65,7 +69,11 @@ export default class Battle extends Phaser.Scene
             'sci_fi_buttons',
             'start',
             () => {
-                sendRequest(makeRequest("new-game"));
+                if (this.team.length > 0) {
+                    sendRequest(makeRequest("new-game"));
+                } else {
+                    console.warn('You cannnot fight without a team!')
+                }
             }
         );
     }
@@ -99,6 +107,7 @@ export default class Battle extends Phaser.Scene
 
     /**
      * Creates an animated button.
+     * The start and end frames for the press and release animations are hardcoded.
      * @param {Number} x
      * @param {Number} y 
      * @param {Number} scale 
