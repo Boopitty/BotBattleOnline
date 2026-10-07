@@ -317,3 +317,18 @@ func (c *config) handleGetTeamNames(w http.ResponseWriter, r *http.Request) {
 	}
 	encoding.RespondWithJSON(w, http.StatusOK, response)
 }
+
+func (c *config) handleGetNumUsers(w http.ResponseWriter, r *http.Request) {
+	userCount, err := c.db.GetNumUsers(r.Context())
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+
+	response := struct {
+		UserCount int64 `json:"userCount"`
+	}{
+		UserCount: userCount,
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, response)
+}

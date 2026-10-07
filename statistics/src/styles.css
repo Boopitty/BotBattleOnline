@@ -1,0 +1,26 @@
+:root {
+    --bg-color: #313131;
+    --fg-color: #f5f5f5;
+    --subtle-color: #888;
+    --primary-color: #f30101;
+    --log-bg: #2a2a2a;
+    --log-border: #444;
+    --button-bg: #091b93;
+    --button-hover: #1696ba;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    line-height: 2;
+}
+
+.nav-bar {
+    display: flex;
+    padding: 10px 24px;
+    background-color: var(--bg-color);
+    justify-content: space-between;
+    align-items: center;
+}

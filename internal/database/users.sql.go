@@ -61,6 +61,17 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const getNumUsers = `-- name: GetNumUsers :one
+SELECT COUNT(*) FROM users
+`
+
+func (q *Queries) GetNumUsers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getNumUsers)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT id, username, hashed_password, created_at, updated_at FROM users
 WHERE username = $1

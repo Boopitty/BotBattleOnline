@@ -17,7 +17,7 @@ WHERE username = $1;
 SELECT * FROM users
 WHERE id = $1;
 
---- name: GetNumUsers :one
+-- name: GetNumUsers :one
 SELECT COUNT(*) FROM users;
 
 -- name: DeleteUser :exec

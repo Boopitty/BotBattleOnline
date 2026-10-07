@@ -17,11 +17,13 @@ var playerSession map[*websocket.Conn]uuid.UUID
 func main() {
 	cfg := createConfig()
 
-	mux := http.NewServeMux()                                 // Mutex for the server
-	appHandler := http.FileServer(http.Dir(cfg.filepathRoot)) // Serve the static files from the specified root directory
+	mux := http.NewServeMux()                                          // Mutex for the server
+	appHandler := http.FileServer(http.Dir(cfg.filepathRoot))          // Serve the static files from the specified root directory
+	statisticsHandler := http.FileServer(http.Dir(cfg.statisticsRoot)) // Serve the static files from the specified root directory
 
 	// Handle the front page
-	mux.Handle("/", appHandler)
+	mux.Handle("/", http.StripPrefix("/", appHandler))
+	mux.Handle("/statistics/", http.StripPrefix("/statistics/", statisticsHandler))
 
 	// Handle the API endpoints
 	mux.HandleFunc("/api/command", cfg.handleCommand)
@@ -33,6 +35,9 @@ func main() {
 	mux.HandleFunc("POST /api/saveTeam", cfg.handleSaveTeam)
 	mux.HandleFunc("GET /api/getTeamNames", cfg.handleGetTeamNames)
 	mux.HandleFunc("/ws", handleWS())
+
+	// Handle Admin endpoints
+	mux.HandleFunc("GET /admin/getNumUsers", cfg.handleGetNumUsers)
 
 	// create the server object
 	srv := &http.Server{

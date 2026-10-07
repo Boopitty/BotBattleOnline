@@ -12,10 +12,11 @@ import (
 
 // config holds the configuration values for the server.
 type config struct {
-	port         string
-	filepathRoot string
-	secret       string
-	db           *database.Queries
+	port           string
+	filepathRoot   string
+	statisticsRoot string
+	secret         string
+	db             *database.Queries
 }
 
 // create a new config object by reading environment variables
@@ -36,6 +37,11 @@ func createConfig() *config {
 		log.Fatalln("FILEPATH_ROOT env variable not found.")
 	}
 
+	statisticsRoot := os.Getenv("STATISTICS_ROOT")
+	if statisticsRoot == "" {
+		log.Fatalln("STATISTICS_ROOT env variable not found.")
+	}
+
 	secret := os.Getenv("SECRET")
 	if secret == "" {
 		log.Fatalln("JWT env variable not found.")
@@ -52,10 +58,11 @@ func createConfig() *config {
 	}
 
 	cfg := &config{
-		port:         port,
-		filepathRoot: filepathRoot,
-		secret:       secret,
-		db:           database.New(dbConn),
+		port:           port,
+		filepathRoot:   filepathRoot,
+		statisticsRoot: statisticsRoot,
+		secret:         secret,
+		db:             database.New(dbConn),
 	}
 	return cfg
 }
