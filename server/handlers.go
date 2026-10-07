@@ -332,3 +332,40 @@ func (c *config) handleGetNumUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	encoding.RespondWithJSON(w, http.StatusOK, response)
 }
+
+func (c *config) handleGetNumBots(w http.ResponseWriter, r *http.Request) {
+	botCount, err := c.db.GetNumBots(r.Context())
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
+		return
+	}
+
+	response := struct {
+		BotCount int64 `json:"botCount"`
+	}{
+		BotCount: botCount,
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, response)
+}
+
+func (c *config) handleGetNumGames(w http.ResponseWriter, r *http.Request) {
+	gameCount := int64(len(sessions)) // Get the number of active game sessions
+
+	response := struct {
+		GameCount int64 `json:"gameCount"`
+	}{
+		GameCount: gameCount,
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, response)
+}
+
+func (c *config) handleGetCurrentPlayers(w http.ResponseWriter, r *http.Request) {
+	playerCount := int64(len(playerSession)) // Get the number of active player sessions
+
+	response := struct {
+		PlayerCount int64 `json:"playerCount"`
+	}{
+		PlayerCount: playerCount,
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, response)
+}

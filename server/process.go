@@ -82,9 +82,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 		playerSession[conn] = sessionID
 
 		fmt.Printf("New game started by player: %s\n", request.User.Username)
-		fmt.Printf("New session ID: %s\n", sessionID)
-		fmt.Printf("Current session count: %d\n", len(sessions))
-		fmt.Printf("Current player count: %d\n", len(playerSession))
 
 		return encoding.MakeJSONResponse(Response{
 			Message: fmt.Sprintf("New game started by player: %s", request.User.Username),
@@ -108,7 +105,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 				playerSession[conn] = id
 
 				fmt.Printf("Player 1: %s joined Player 2: %s\n", request.User.Username, gameState.Players.Player2.Username)
-				fmt.Printf("Current player count: %d\n", len(playerSession))
 
 				return encoding.MakeJSONResponse(Response{
 					Message: fmt.Sprintf("You have joined a game against Player 2: %s", gameState.Players.Player2.Username),
@@ -119,7 +115,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 				playerSession[conn] = id
 
 				fmt.Printf("Player 2: %s joined Player 1: %s\n", request.User.Username, gameState.Players.Player1.Username)
-				fmt.Printf("Current player count: %d\n", len(playerSession))
 
 				return encoding.MakeJSONResponse(Response{
 					Message: fmt.Sprintf("You have joined a game against Player 1: %s", gameState.Players.Player1.Username),
@@ -137,7 +132,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 	case "leave-game":
 		if sessionID, exists := playerSession[conn]; exists {
 			delete(playerSession, conn)
-			fmt.Printf("Current player count: %d\n", len(playerSession))
 
 			if gameState, exists := sessions[sessionID]; exists {
 				gameState.Mu.Lock()
@@ -152,8 +146,6 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 				// If both players have left, remove the game state from sessions
 				if gameState.Players.Player1.Conn == nil && gameState.Players.Player2.Conn == nil {
 					delete(sessions, sessionID)
-					fmt.Printf("Current session count: %d\n", len(sessions))
-
 				}
 			}
 			return encoding.MakeJSONResponse(Response{Message: "You have left the game"})

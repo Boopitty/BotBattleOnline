@@ -38,6 +38,9 @@ func main() {
 
 	// Handle Admin endpoints
 	mux.HandleFunc("GET /admin/getNumUsers", cfg.handleGetNumUsers)
+	mux.HandleFunc("GET /admin/getNumBots", cfg.handleGetNumBots)
+	mux.HandleFunc("GET /admin/getNumGames", cfg.handleGetNumGames)
+	mux.HandleFunc("GET /admin/getCurrentPlayers", cfg.handleGetCurrentPlayers)
 
 	// create the server object
 	srv := &http.Server{
