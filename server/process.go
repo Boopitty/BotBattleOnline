@@ -39,34 +39,35 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 	request.User.Conn = conn // Associate the connection with the user to be stored in the game state
 
 	switch request.Command {
-	case "help":
-		return encoding.MakeJSONResponse(Response{Message: "Available commands: help, profile, bots, attack, quit"})
-
-	case "make-team":
-		return encoding.MakeJSONResponse(Response{Message: "makeTeam not implemented yet"})
-
 	case "new-game":
-		if _, exists := playerSession[conn]; exists {
+		activePlayers.mu.Lock()
+		defer activePlayers.mu.Unlock()
+
+		// Check if the user's connection is already associated with a game session
+		if _, exists := activePlayers.sessions[conn]; exists {
 			return encoding.MakeJSONResponse(Response{
 				Message: "You are already in a game",
 			})
 		}
 
-		// Check if the user is already in a game
-		for id, gameState := range sessions {
+		// Check if the user's connection is already associated with a game session in activeGames
+		for id, gameState := range activeGames.sessions {
 			if gameState.Players.Player1.Conn == conn || gameState.Players.Player2.Conn == conn {
-				playerSession[conn] = id
+				activePlayers.sessions[conn] = id // Re-associate the connection with the existing session ID
 				return encoding.MakeJSONResponse(Response{
 					Message: "You are already in a game",
 				})
 			}
 		}
 
-		// New unique session ID
+		activeGames.mu.Lock()
+		defer activeGames.mu.Unlock()
+
+		// Create new unique session ID
 		var sessionID uuid.UUID
 		for {
 			sessionID = uuid.New()
-			_, exists := sessions[sessionID]
+			_, exists := activeGames.sessions[sessionID]
 			if exists {
 				continue
 			} else {
@@ -75,11 +76,11 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 		}
 
 		// Store the gameState in a global variable and associate the connection with the session
-		sessions[sessionID] = gamelogic.NewGameState()
-		sessions[sessionID].Players.Player1 = request.User
+		activeGames.sessions[sessionID] = gamelogic.NewGameState()
+		activeGames.sessions[sessionID].Players.Player1 = request.User
 
 		// Associate the connection with the session ID
-		playerSession[conn] = sessionID
+		activePlayers.sessions[conn] = sessionID
 
 		fmt.Printf("New game started by player: %s\n", request.User.Username)
 
@@ -88,21 +89,34 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 		})
 
 	case "join-game":
-		// Check if the user is already in a game
-		if _, exists := playerSession[conn]; exists {
+		activePlayers.mu.Lock()
+		defer activePlayers.mu.Unlock()
+
+		// Check if the user's connection is already associated with a game session
+		if _, exists := activePlayers.sessions[conn]; exists {
 			return encoding.MakeJSONResponse(Response{
 				Message: "You are already in a game",
 			})
 		}
 
-		// Find a game with less than 2 players and add the user to that game
-		for id, gameState := range sessions {
-			gameState.Mu.Lock()
-			defer gameState.Mu.Unlock()
+		activeGames.mu.Lock()
+		defer activeGames.mu.Unlock()
 
+		// Check if the user's connection is already associated with a game session in activeGames
+		for id, gameState := range activeGames.sessions {
+			if gameState.Players.Player1.Conn == conn || gameState.Players.Player2.Conn == conn {
+				activePlayers.sessions[conn] = id // Re-associate the connection with the existing session ID
+				return encoding.MakeJSONResponse(Response{
+					Message: "You are already in a game",
+				})
+			}
+		}
+
+		// Find a game with less than 2 players and add the user to that game
+		for id, gameState := range activeGames.sessions {
 			if gameState.Players.Player1.Conn == nil {
 				gameState.Players.Player1 = request.User
-				playerSession[conn] = id
+				activePlayers.sessions[conn] = id
 
 				fmt.Printf("Player 1: %s joined Player 2: %s\n", request.User.Username, gameState.Players.Player2.Username)
 
@@ -112,7 +126,7 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 
 			} else if gameState.Players.Player2.Conn == nil {
 				gameState.Players.Player2 = request.User
-				playerSession[conn] = id
+				activePlayers.sessions[conn] = id
 
 				fmt.Printf("Player 2: %s joined Player 1: %s\n", request.User.Username, gameState.Players.Player1.Username)
 
@@ -130,10 +144,10 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 		return encoding.MakeJSONResponse(Response{Message: "leave-spectate not implemented yet"})
 
 	case "leave-game":
-		if sessionID, exists := playerSession[conn]; exists {
-			delete(playerSession, conn)
+		if sessionID, exists := activePlayers.sessions[conn]; exists {
+			delete(activePlayers.sessions, conn)
 
-			if gameState, exists := sessions[sessionID]; exists {
+			if gameState, exists := activeGames.sessions[sessionID]; exists {
 				gameState.Mu.Lock()
 				defer gameState.Mu.Unlock()
 
@@ -145,7 +159,7 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 
 				// If both players have left, remove the game state from sessions
 				if gameState.Players.Player1.Conn == nil && gameState.Players.Player2.Conn == nil {
-					delete(sessions, sessionID)
+					delete(activeGames.sessions, sessionID)
 				}
 			}
 			return encoding.MakeJSONResponse(Response{Message: "You have left the game"})
@@ -158,14 +172,8 @@ func Process(conn *websocket.Conn, req []byte) []byte {
 	case "resume":
 		return encoding.MakeJSONResponse(Response{Message: "resume not implemented yet"})
 
-	case "profile":
-		return encoding.MakeJSONResponse(Response{Message: "profile not implemented yet"})
-
 	case "attack":
 		return encoding.MakeJSONResponse(Response{Message: "attack not implemented yet"})
-
-	case "quit":
-		return encoding.MakeJSONResponse(Response{Message: "Nice try, but you can't quit the game yet"})
 
 	default:
 		return encoding.MakeJSONResponse(Response{Message: fmt.Sprintf("Invalid command: %s", request.Command)})

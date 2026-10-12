@@ -349,7 +349,9 @@ func (c *config) handleGetNumBots(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *config) handleGetNumGames(w http.ResponseWriter, r *http.Request) {
-	gameCount := int64(len(sessions)) // Get the number of active game sessions
+	activeGames.mu.Lock()
+	defer activeGames.mu.Unlock()
+	gameCount := int64(len(activeGames.sessions)) // Get the number of active game sessions
 
 	response := struct {
 		GameCount int64 `json:"gameCount"`
@@ -360,7 +362,9 @@ func (c *config) handleGetNumGames(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *config) handleGetCurrentPlayers(w http.ResponseWriter, r *http.Request) {
-	playerCount := int64(len(playerSession)) // Get the number of active player sessions
+	activePlayers.mu.Lock()
+	defer activePlayers.mu.Unlock()
+	playerCount := int64(len(activePlayers.sessions)) // Get the number of active player sessions
 
 	response := struct {
 		PlayerCount int64 `json:"playerCount"`

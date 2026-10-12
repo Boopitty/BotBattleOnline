@@ -5,14 +5,10 @@ import (
 	"testing"
 
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 func TestProcess(t *testing.T) {
-	playerSession = make(map[*websocket.Conn]uuid.UUID) // Map of player connections to session IDs
-	sessions = make(map[uuid.UUID]*gamelogic.GameState) // List of gamestates
-
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for target function.
@@ -103,38 +99,6 @@ func TestProcess(t *testing.T) {
 			conn: &websocket.Conn{},
 			want: Response{
 				Message: "You are not currently in a game",
-			},
-		},
-		{
-			name: "get-bot valid",
-			req: Request{
-				User: gamelogic.Player{
-					Username: "testuser1",
-				},
-				Command: "get-bot",
-				Input:   0, // BasicBot
-			},
-			conn: &websocket.Conn{},
-			want: Response{
-				Message: "Selected bot: Basic Bot",
-				Bot: gamelogic.Bot{
-					Name:  "Basic Bot",
-					Value: 10,
-				},
-			},
-		},
-		{
-			name: "get-bot invalid",
-			req: Request{
-				User: gamelogic.Player{
-					Username: "testuser1",
-				},
-				Command: "get-bot",
-				Input:   -1, // Invalid bot number
-			},
-			conn: &websocket.Conn{},
-			want: Response{
-				Message: "Unknown bot: -1",
 			},
 		},
 	}

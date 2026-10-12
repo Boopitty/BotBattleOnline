@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
@@ -11,8 +12,21 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var sessions map[uuid.UUID]*gamelogic.GameState
-var playerSession map[*websocket.Conn]uuid.UUID
+var activeGames = struct {
+	sessions map[uuid.UUID]*gamelogic.GameState
+	mu       *sync.Mutex
+}{
+	sessions: make(map[uuid.UUID]*gamelogic.GameState),
+	mu:       &sync.Mutex{},
+}
+
+var activePlayers = struct {
+	sessions map[*websocket.Conn]uuid.UUID
+	mu       *sync.Mutex
+}{
+	sessions: make(map[*websocket.Conn]uuid.UUID),
+	mu:       &sync.Mutex{},
+}
 
 func main() {
 	cfg := createConfig()
@@ -50,8 +64,6 @@ func main() {
 		ReadTimeout:  30 * time.Second,
 	}
 
-	playerSession = make(map[*websocket.Conn]uuid.UUID) // Map of player connections to session IDs
-	sessions = make(map[uuid.UUID]*gamelogic.GameState) // List of gamestates
 	fmt.Printf("server started on http://localhost:%s\n", cfg.port)
 	log.Fatal(srv.ListenAndServe()) // this blocks forever, until the server has an unrecoverable error
 }
