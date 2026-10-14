@@ -187,10 +187,10 @@ export default class TeamSelect extends Phaser.Scene
             const resp = await fetch("/api/saveTeam", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
-                    token: localStorage.getItem("token"),
                     team: this.team
                 })
             });

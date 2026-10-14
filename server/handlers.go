@@ -64,6 +64,34 @@ func (c *config) handleCommand(w http.ResponseWriter, r *http.Request) {
 	encoding.RespondWithJSON(w, http.StatusOK, response)
 }
 
+func (c *config) handleValidateToken(w http.ResponseWriter, r *http.Request) {
+	headerToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(headerToken, c.secret)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	user, err := c.db.GetUserByID(r.Context(), userID)
+	if err != nil {
+		log.Printf("Error finding user: %v", err)
+		encoding.RespondWithError(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	response := struct {
+		Username string `json:"username"`
+	}{
+		Username: user.Username,
+	}
+	encoding.RespondWithJSON(w, http.StatusOK, response)
+}
+
 func (c *config) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	req := struct {
 		Username string `json:"username"`
@@ -118,12 +146,13 @@ func (c *config) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	success := encoding.DecodeJSON(w, r, &req)
 	if !success {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
 		return
 	}
 
 	user, err := c.db.GetUser(r.Context(), req.Username)
 	if err != nil {
-		encoding.RespondWithError(w, http.StatusUnauthorized, err)
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid username or password"))
 	}
 
 	valid, err := auth.CheckPassHash(req.Password, user.HashedPassword)
@@ -131,7 +160,7 @@ func (c *config) handleLogin(w http.ResponseWriter, r *http.Request) {
 		encoding.RespondWithError(w, http.StatusInternalServerError, err)
 	}
 	if !valid {
-		encoding.RespondWithError(w, http.StatusUnauthorized, nil)
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid username or password"))
 		return
 	}
 
@@ -160,6 +189,7 @@ func (c *config) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	success := encoding.DecodeJSON(w, r, &req)
 	if !success {
+		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
 		return
 	}
 
@@ -174,13 +204,13 @@ func (c *config) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	user, err := c.db.GetUserByID(r.Context(), userID)
 	if err != nil {
 		log.Printf("Error finding user: %v", err)
-		encoding.RespondWithError(w, http.StatusUnauthorized, err)
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid username or password"))
 		return
 	}
 
 	// Check if username and password match
 	if user.Username != req.Username {
-		encoding.RespondWithError(w, http.StatusUnauthorized, nil)
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid username or password"))
 		return
 	}
 	match, err := auth.CheckPassHash(req.Password, user.HashedPassword)
@@ -189,7 +219,7 @@ func (c *config) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !match {
-		encoding.RespondWithError(w, http.StatusUnauthorized, nil)
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid username or password"))
 		return
 	}
 
@@ -234,20 +264,25 @@ func (c *config) handleGetBot(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *config) handleSaveTeam(w http.ResponseWriter, r *http.Request) {
+	headerToken, err := auth.GetBearerToken(r.Header)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	userID, err := auth.ValidateJWT(headerToken, c.secret)
+	if err != nil {
+		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid Token"))
+		return
+	}
+
 	req := struct {
-		Token string   `json:"Token"`
-		Team  []string `json:"Team"`
+		Team []string `json:"Team"`
 	}{}
 
 	success := encoding.DecodeJSON(w, r, &req)
 	if !success {
 		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
-		return
-	}
-
-	userID, err := auth.ValidateJWT(req.Token, c.secret)
-	if err != nil {
-		encoding.RespondWithError(w, http.StatusUnauthorized, fmt.Errorf("Invalid Token"))
 		return
 	}
 

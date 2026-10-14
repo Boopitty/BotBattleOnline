@@ -1,39 +1,56 @@
 // js/main.js
 document.addEventListener("DOMContentLoaded", async () => {
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
+    // Assign default username if not found in localStorage
+    if (localStorage.getItem("username") && localStorage.getItem("token")) {
+        // Validate the token with the server
+        try {
+            const resp = await fetch("/api/validateToken", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
 
-  if (token && username) {
-    console.log(`Logging in as: ${username}`);
-    document.getElementById("login").style.display = "none";
-    document.getElementById("cancel-login").style.display = "none";
-    document.getElementById("logout").style.display = "block";
+            const data = await resp.json();
+            if (!resp.ok) {
+                throw new Error(`${data.error}`);
+            }
 
-  } else {
-    localStorage.setItem("username", "Anonymous");
-    console.log("Username not found..")
-    document.getElementById("login").style.display = "block";
-    document.getElementById("cancel-login").style.display = "none";
-    document.getElementById("logout").style.display = "none";
-  }
-});
+            // If token is valid, log the success and username
+            console.log(`Token validated successfully`);
+            console.log(`Logging in as: ${localStorage.getItem("username")}`);
+        
+            // Configure buttons
+            document.getElementById("login").style.display = "none";
+            document.getElementById("cancel-login").style.display = "none";
+            document.getElementById("logout").style.display = "block";
 
-document.getElementById("reset").addEventListener("click", async () => {
-    console.log("Resetting database...");
-    try {
-        const resp = await fetch("/api/resetUsers", {
-            method: "DELETE"
-        });
-        const data = resp.json();
-        if (!resp.ok) {
-            throw Error(`Reset Failed: ${data.error}`)
+        } catch (error) {
+            console.error(`Error validating token: ${error.message}`);
+
+            // If token validation fails, reset to anonymous
+            localStorage.setItem("username", "Anonymous");
+            localStorage.removeItem("token");
+
+            // Configure buttons
+            document.getElementById("login").style.display = "block";
+            document.getElementById("cancel-login").style.display = "none";
+            document.getElementById("logout").style.display = "none";
         }
-        console.log("Database reset successful");
-    } catch (error) {
-        alert(`Error: ${error}`);
-        console.error("Database reset failed")
+
+    } else {
+        localStorage.setItem("username", "Anonymous");
+        localStorage.removeItem("token");
+        console.log(`No valid token found`);
+        console.log("Logging in as: Anonymous");
+
+        // Configure buttons
+        document.getElementById("login").style.display = "block";
+        document.getElementById("cancel-login").style.display = "none";
+        document.getElementById("logout").style.display = "none";
     }
-})
+});
 
 // display login form
 document.getElementById("login").addEventListener("click", () => {
@@ -103,10 +120,11 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
             })
         });
 
+        // clear input fields
+        clearAllInputs();
+
         const data = await resp.json(); // response body
         if (!resp.ok) { // check status code
-            document.getElementById("username").value = "";
-            document.getElementById("password").value = "";
             throw new Error(`Login Failed: ${data.error}`);
         }
 
@@ -115,11 +133,14 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
         localStorage.setItem("username", data.username);
         console.log(`logging in as ${data.username}`);
         
-        // clear inputs and re-configure buttons
-        document.getElementsByClassName("input-area").value = ""
+        // re-configure buttons
         document.getElementById("login").style.display = "none";
         document.getElementById("cancel-login").style.display = "none";
         document.getElementById("logout").style.display = "block";
+
+        // hide the login form
+        document.getElementById("login-form").style.display = "none";
+
     } catch (error) {
         alert(`Error: ${error.message}`);
     }
@@ -151,12 +172,11 @@ document.getElementById("new-profile-form").addEventListener("submit", async (ev
             })
         });
 
-        
+        // clear input fields
+        clearAllInputs();
+
         const data = await resp.json(); // response body
         if (!resp.ok) { // check status code
-            document.getElementById("new-username").value = "";
-            document.getElementById("new-password").value = "";
-            document.getElementById("confirm-password").value = "";
             throw new Error(`Login Failed: ${data.error}`);
         }
 
@@ -165,11 +185,13 @@ document.getElementById("new-profile-form").addEventListener("submit", async (ev
         localStorage.setItem("username", data.username);
         console.log(`logging in as ${data.username}`);
         
-        // clear inputs and re-configure buttons
-        document.getElementsByClassName("input-area").value = ""
+        // re-configure buttons
         document.getElementById("login").style.display = "none";
         document.getElementById("cancel-login").style.display = "none";
         document.getElementById("logout").style.display = "block";
+
+        // hide the new profile form
+        document.getElementById("new-profile-form").style.display = "none";
 
     } catch (error) {
         alert(`Error: ${error.message}`);
@@ -180,6 +202,12 @@ document.getElementById("command-form").addEventListener("submit", async (event)
     event.preventDefault();
     await command();
 });
+
+function clearAllInputs() {
+    for (const input of document.getElementsByClassName("input-area")) {
+        input.value = "";
+    }
+}
 
 async function command() {
     const command = document.getElementById("command").value;

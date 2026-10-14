@@ -41,6 +41,7 @@ func main() {
 
 	// Handle the API endpoints
 	mux.HandleFunc("/api/command", cfg.handleCommand)
+	mux.HandleFunc("GET /api/validateToken", cfg.handleValidateToken)
 	mux.HandleFunc("POST /api/createUser", cfg.handleCreateUser)
 	mux.HandleFunc("POST /api/login", cfg.handleLogin)
 	mux.HandleFunc("DELETE /api/deleteUser", cfg.handleDeleteUser)
