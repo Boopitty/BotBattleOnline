@@ -19,9 +19,10 @@ type Bot struct {
 type BotType string
 
 const (
-	BasicBot  BotType = "basic"
-	SpiderBot BotType = "spider"
-	BigBot    BotType = "big"
+	AssaultBot   BotType = "Assault"
+	GrenadierBot BotType = "Grenadier"
+	SniperBot    BotType = "Sniper"
+	SpiderBot    BotType = "Spider"
 )
 
 func newBot(name string, value int, hp int, atk int, def int, spd int, huge bool) *Bot {
@@ -44,12 +45,14 @@ func newBot(name string, value int, hp int, atk int, def int, spd int, huge bool
 
 func MakeBot(num BotType) *Bot {
 	switch num {
-	case BasicBot:
-		return newBot("Basic Bot", 10, 50, 10, 5, 10, false)
+	case AssaultBot:
+		return newBot("Assault Bot", 10, 75, 15, 10, 10, false)
+	case GrenadierBot:
+		return newBot("Grenadier Bot", 20, 100, 20, 15, 10, false)
+	case SniperBot:
+		return newBot("Sniper Bot", 15, 50, 30, 5, 15, false)
 	case SpiderBot:
-		return newBot("Spider Bot", 20, 100, 20, 5, 10, false)
-	case BigBot:
-		return newBot("Big Bot", 200, 15, 10, 5, 10, true)
+		return newBot("Spider Bot", 50, 200, 20, 5, 10, true)
 	default:
 		return nil
 	}

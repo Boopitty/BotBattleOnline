@@ -12,16 +12,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// This struct keeps track of active game sessions.
 var activeGames = struct {
-	sessions map[uuid.UUID]*gamelogic.GameState
+	sessions map[uuid.UUID]*gamelogic.GameState // The key is the session ID, the value is the game state
 	mu       *sync.Mutex
 }{
 	sessions: make(map[uuid.UUID]*gamelogic.GameState),
 	mu:       &sync.Mutex{},
 }
 
+// This struct keeps track of active players and their associated game sessions.
 var activePlayers = struct {
-	sessions map[*websocket.Conn]uuid.UUID
+	sessions map[*websocket.Conn]uuid.UUID // The key is the ws connection, the value is their current game session ID
 	mu       *sync.Mutex
 }{
 	sessions: make(map[*websocket.Conn]uuid.UUID),

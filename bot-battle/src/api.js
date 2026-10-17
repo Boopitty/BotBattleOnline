@@ -1,5 +1,10 @@
 export async function getSavedTeam () {
     const emptyTeam = [];
+    if (!localStorage.getItem("token")) {
+        console.log("No token found in localStorage. Returning empty team.");
+        return emptyTeam;
+    }
+    
     try {
         const resp = await fetch("/api/getTeamNames", {
             method: "GET",

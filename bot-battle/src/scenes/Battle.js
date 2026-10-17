@@ -27,7 +27,7 @@ export default class Battle extends Phaser.Scene
         this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
         this.flag.setInteractive().on('pointerup', () => {
             if (this.team.length > 0) {
-                sendRequest(makeRequest("join-game"));
+                sendRequest(makeRequest("join-game", this.team));
             } else {
                 console.warn('You cannot join a game without a team!')
             }
@@ -70,7 +70,7 @@ export default class Battle extends Phaser.Scene
             'start',
             () => {
                 if (this.team.length > 0) {
-                    sendRequest(makeRequest("new-game"));
+                    sendRequest(makeRequest("new-game", this.team));
                 } else {
                     console.warn('You cannnot fight without a team!')
                 }

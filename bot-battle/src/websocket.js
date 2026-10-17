@@ -1,6 +1,7 @@
 // js/websocket.js
 export { initWebSocket, closeWebSocket, makeRequest, sendRequest };
 let socket = null;
+let gameState = null
 
 async function initWebSocket() {
     if (socket) {
@@ -16,6 +17,12 @@ async function initWebSocket() {
         try {
             const resp = JSON.parse(event.data);
             console.log(resp.message);
+            switch (resp.type) {
+                case "gamestate":
+                    gameState = resp.gamestate;
+                    console.log(gameState);
+                    break;
+            }
         } catch (error) {
             console.error(`Error when parsing: ${error}`);
         }
@@ -37,16 +44,18 @@ async function closeWebSocket() {
 
 /** 
  * @Param {string} command - The command to send
+ * @Param {Array} team - The team of bots to send
  * @Param {number} input - The input for the command
  * @returns {string} - The request string in JSON format
  */
-function makeRequest (command, input = 0) {
+function makeRequest (command, teamNames = [], input = 0) {
     return JSON.stringify({
         User: {
             username: localStorage.getItem("username"),
         },
-        command: command,
-        input: input
+        TeamNames: teamNames,
+        Command: command,
+        Input: input
     });
 }
 

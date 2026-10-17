@@ -7,12 +7,12 @@ import (
 type Player struct {
 	Conn     *websocket.Conn `json:"-"`
 	Username string          `json:"username"`
-	Team     map[int]Bot     `json:"team"`
+	Team     []Bot           `json:"team"`
 }
 
 func NewPlayer(username string) *Player {
 	return &Player{
 		Username: username,
-		Team:     make(map[int]Bot),
+		Team:     make([]Bot, 0),
 	}
 }
