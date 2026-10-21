@@ -35,13 +35,12 @@ func handleWS() func(http.ResponseWriter, *http.Request) {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				log.Printf("error reading message: %v", err)
-				processed := Process(conn, []byte(`{"command":"leave-game"}`)) // Ensure the player leaves the game when the connection is closed
-				log.Printf("Processed leaveGame response: %s\n", string(processed))
+				log.Printf("Leaving Game")
+				go Process(conn, []byte(`{"command":"leave-game"}`)) // Ensure the player leaves the game when the connection is closed
 				break
 			}
 			log.Println("Received message:", string(msg))
-			processed := Process(conn, msg)
-			conn.WriteMessage(websocket.TextMessage, processed)
+			go Process(conn, msg)
 		}
 	}
 }

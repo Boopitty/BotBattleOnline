@@ -2,6 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
@@ -13,7 +17,6 @@ func TestProcess(t *testing.T) {
 		name string // description of this test case
 		// Named input parameters for target function.
 		req  Request
-		conn *websocket.Conn
 		want Response
 	}{
 		{
@@ -21,19 +24,8 @@ func TestProcess(t *testing.T) {
 			req: Request{
 				Command: "test-command",
 			},
-			conn: &websocket.Conn{},
 			want: Response{
 				Message: "Invalid command: test-command",
-			},
-		},
-		{
-			name: "Help command",
-			req: Request{
-				Command: "help",
-			},
-			conn: &websocket.Conn{},
-			want: Response{
-				Message: "Available commands: help, profile, bots, attack, quit",
 			},
 		},
 		{
@@ -44,9 +36,8 @@ func TestProcess(t *testing.T) {
 				},
 				Command: "join-game",
 			},
-			conn: &websocket.Conn{},
 			want: Response{
-				Message: "No available games to join",
+				Message: "Invalid Team",
 			},
 		},
 		{
@@ -57,7 +48,6 @@ func TestProcess(t *testing.T) {
 				},
 				Command: "leave-game",
 			},
-			conn: &websocket.Conn{},
 			want: Response{
 				Message: "You are not currently in a game",
 			},
@@ -68,9 +58,9 @@ func TestProcess(t *testing.T) {
 				User: gamelogic.Player{
 					Username: "testuser1",
 				},
-				Command: "new-game",
+				TeamNames: []string{"Assault"},
+				Command:   "new-game",
 			},
-			conn: &websocket.Conn{},
 			want: Response{
 				Message: "New game started by player: testuser1",
 			},
@@ -81,11 +71,22 @@ func TestProcess(t *testing.T) {
 				User: gamelogic.Player{
 					Username: "testuser2",
 				},
-				Command: "join-game",
+				TeamNames: []string{"Assault"},
+				Command:   "join-game",
 			},
-			conn: &websocket.Conn{},
 			want: Response{
-				Message: "You have joined a game against Player 1: testuser1",
+				Type:    "gamestate",
+				Message: "Sending Gamestate",
+				GameState: OutGameState{
+					Player1: OutPlayer{
+						Name: "testuser1",
+						Team: []string{"Assault"},
+					},
+					Player2: OutPlayer{
+						Name: "testuser2",
+						Team: []string{"Assault"},
+					},
+				},
 			},
 		},
 		{
@@ -96,7 +97,6 @@ func TestProcess(t *testing.T) {
 				},
 				Command: "leave-game",
 			},
-			conn: &websocket.Conn{},
 			want: Response{
 				Message: "You are not currently in a game",
 			},
@@ -110,13 +110,39 @@ func TestProcess(t *testing.T) {
 				t.Fatalf("Failed to marshal request: %v", err)
 			}
 
-			got := Process(tt.conn, reqBytes)
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				conn, err := (&websocket.Upgrader{}).Upgrade(w, r, nil)
+				if err != nil {
+					t.Errorf("Failed to upgrade websocket: %v", err)
+					return
+				}
+				defer conn.Close()
+				Process(conn, reqBytes)
+			}))
+			defer server.Close()
+
+			wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
+			client, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+			if err != nil {
+				t.Fatalf("Failed to connect to websocket: %v", err)
+			}
+			defer client.Close()
+
+			// check the written message
+			_, reader, err := client.NextReader()
+			if err != nil {
+				t.Fatalf("Error in conn.NextReader: %v", err)
+			}
+
+			got, err := io.ReadAll(reader)
+			if err != nil {
+				t.Fatalf("Error in io.ReadAll: %v", err)
+			}
 
 			var gotResp Response
 			if err := json.Unmarshal(got, &gotResp); err != nil {
 				t.Fatalf("Failed to unmarshal response: %v", err)
 			}
-
 			if gotResp.Message != tt.want.Message {
 				t.Errorf("Process() = %v, want %v", gotResp, tt.want)
 			}
