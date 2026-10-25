@@ -43,16 +43,16 @@ func newBot(name string, value int, hp int, atk int, def int, spd int, huge bool
 	}
 }
 
-func MakeBot(num BotType) *Bot {
-	switch num {
+func MakeBot(bot BotType) *Bot {
+	switch bot {
 	case AssaultBot:
-		return newBot("Assault Bot", 10, 75, 15, 10, 10, false)
+		return newBot("Assault", 10, 75, 15, 10, 10, false)
 	case GrenadierBot:
-		return newBot("Grenadier Bot", 20, 100, 20, 15, 10, false)
+		return newBot("Grenadier", 20, 100, 20, 15, 10, false)
 	case SniperBot:
-		return newBot("Sniper Bot", 15, 50, 30, 5, 15, false)
+		return newBot("Sniper", 15, 50, 30, 5, 15, false)
 	case SpiderBot:
-		return newBot("Spider Bot", 50, 200, 20, 5, 10, true)
+		return newBot("Spider", 50, 200, 20, 5, 10, true)
 	default:
 		return nil
 	}

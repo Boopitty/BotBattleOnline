@@ -20,18 +20,32 @@ export default class Battle extends Phaser.Scene
 
     create ()
     {
+        window.Battle = this;
         this.makeButtons();
 
         // Handle the flag sprite
         this.createAnim("Flag", "Idle", 0, 5, -1, 6);
         this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
         this.flag.setInteractive().on('pointerup', () => {
-            if (this.team.length > 0) {
-                sendRequest(makeRequest("join-game", this.team));
-            } else {
-                console.warn('You cannot join a game without a team!')
-            }
+            sendRequest(makeRequest("join-game", this.team));
         }); 
+    }
+
+    printGamestate (gamestate) {
+        console.log(gamestate);
+    }
+
+    beginBattle (gamestate) {
+        for (const i in gamestate.p1Actives) {
+            const botName = gamestate.p1Actives[i].name
+            this.createAnim(botName, "Idle", 0, 1, -1, 2)
+            this.add.sprite(194, 250 + (i * 100), botName).play(`${botName}_Idle`).setScale(10);
+        }
+        for (const i in gamestate.p2Actives) {
+            const botName = gamestate.p2Actives[i].name
+            this.createAnim(botName, "Idle", 0, 1, -1, 2)
+            this.add.sprite(800, 250 + (i * 100), botName).play(`${botName}_Idle`).setScale(10).setFlip(true, false);
+        }
     }
 
     // Creates all buttons for this scene

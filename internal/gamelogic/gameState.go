@@ -33,14 +33,20 @@ func (gs *GameState) BeginGame() {
 
 	// Initialize the active bots for both players
 	for _, bot := range gs.Player1.Team {
+		if bot.Huge && (len(gs.P1ActiveBots) >= 1) {
+			continue
+		}
 		gs.P1ActiveBots = append(gs.P1ActiveBots, &bot)
-		if len(gs.P1ActiveBots) == 2 {
+		if bot.Huge || (len(gs.P1ActiveBots) == 2) {
 			break
 		}
 	}
 	for _, bot := range gs.Player2.Team {
+		if bot.Huge && (len(gs.P2ActiveBots) >= 1) {
+			continue
+		}
 		gs.P2ActiveBots = append(gs.P2ActiveBots, &bot)
-		if len(gs.P2ActiveBots) == 2 {
+		if bot.Huge || (len(gs.P2ActiveBots) == 2) {
 			break
 		}
 	}
@@ -48,26 +54,47 @@ func (gs *GameState) BeginGame() {
 	gs.Turn = 1 // Turn counter starts at 1
 }
 
-func (gs *GameState) GetPlayer1Name() string {
-	return gs.Player1.Username
-}
+type playerNum int
 
-func (gs *GameState) GetPlayer2Name() string {
-	return gs.Player2.Username
-}
+const (
+	player1 playerNum = 1
+	player2 playerNum = 2
+)
 
-func (gs *GameState) GetPlayer1TeamNames() []string {
-	names := make([]string, 0)
-	for _, bot := range gs.Player1.Team {
-		names = append(names, bot.Name)
+func (gs *GameState) GetPlayerName(p playerNum) string {
+	switch p {
+	case player1:
+		return gs.Player1.Username
+	case player2:
+		return gs.Player2.Username
+	default:
+		return "None"
 	}
-	return names
 }
 
-func (gs *GameState) GetPlayer2TeamNames() []string {
+func (gs *GameState) GetPlayerTeamNames(p playerNum) []string {
 	names := make([]string, 0)
-	for _, bot := range gs.Player2.Team {
-		names = append(names, bot.Name)
+	switch p {
+	case player1:
+		for _, bot := range gs.Player1.Team {
+			names = append(names, bot.Name)
+
+		}
+		return names
+
+	case player2:
+		for _, bot := range gs.Player2.Team {
+			if bot.Huge && len(names) > 1 {
+				continue
+			}
+			names = append(names, bot.Name)
+			if bot.Huge {
+				break
+			}
+		}
+		return names
+
+	default:
+		return make([]string, 0)
 	}
-	return names
 }

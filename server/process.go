@@ -25,8 +25,10 @@ type OutPlayer struct {
 	Team []string `json:"team"`
 }
 type OutGameState struct {
-	Player1 OutPlayer `json:"player1"`
-	Player2 OutPlayer `json:"player2"`
+	Player1   OutPlayer        `json:"player1"`
+	Player2   OutPlayer        `json:"player2"`
+	P1Actives []*gamelogic.Bot `json:"p1Actives"`
+	P2Actives []*gamelogic.Bot `json:"p2Actives"`
 }
 
 // Struct to be returned to a client

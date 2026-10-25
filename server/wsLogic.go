@@ -116,31 +116,9 @@ func wsJoinGame(conn *websocket.Conn, request Request) {
 			if gameState.Player1.Conn == nil {
 				gameState.Player1 = request.User // Add the user as Player 1
 				found = true
-				for _, botName := range request.TeamNames { // Add the user's team to Player 1's team
-					bot := gamelogic.MakeBot(gamelogic.BotType(botName))
-					if bot != nil {
-						gameState.Player1.Team = append(gameState.Player1.Team, *bot)
-					}
-				}
-
-				activePlayers.sessions[conn] = id // Associate the connection with the session ID
+				joinGame(gameState, &gameState.Player1, conn, request, id)
 
 				fmt.Printf("Player 1: %s joined Player 2: %s\n", request.User.Username, gameState.Player2.Username)
-				gameState.BeginGame()
-				sendToAllPlayers(id, encoding.MakeJSONResponse(Response{
-					Type:    "gamestate",
-					Message: "Sending Gamestate",
-					GameState: OutGameState{
-						Player1: OutPlayer{
-							Name: gameState.GetPlayer1Name(),
-							Team: gameState.GetPlayer1TeamNames(),
-						},
-						Player2: OutPlayer{
-							Name: gameState.GetPlayer2Name(),
-							Team: gameState.GetPlayer2TeamNames(),
-						},
-					},
-				}))
 
 				conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
 					Message: fmt.Sprintf("You have joined a game against Player 2: %s", gameState.Player2.Username),
@@ -150,31 +128,9 @@ func wsJoinGame(conn *websocket.Conn, request Request) {
 			} else if gameState.Player2.Conn == nil {
 				gameState.Player2 = request.User // Add the user as Player 2
 				found = true
-				for _, botName := range request.TeamNames { // Add the user's team to Player 2's team
-					bot := gamelogic.MakeBot(gamelogic.BotType(botName))
-					if bot != nil {
-						gameState.Player2.Team = append(gameState.Player2.Team, *bot)
-					}
-				}
-
-				activePlayers.sessions[conn] = id // Associate the connection with the session ID
+				joinGame(gameState, &gameState.Player2, conn, request, id)
 
 				fmt.Printf("Player 2: %s joined Player 1: %s\n", request.User.Username, gameState.Player1.Username)
-				gameState.BeginGame()
-				sendToAllPlayers(id, encoding.MakeJSONResponse(Response{
-					Type:    "gamestate",
-					Message: "Sending Gamestate",
-					GameState: OutGameState{
-						Player1: OutPlayer{
-							Name: gameState.GetPlayer1Name(),
-							Team: gameState.GetPlayer1TeamNames(),
-						},
-						Player2: OutPlayer{
-							Name: gameState.GetPlayer2Name(),
-							Team: gameState.GetPlayer2TeamNames(),
-						},
-					},
-				}))
 
 				conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
 					Message: fmt.Sprintf("You have joined a game against Player 1: %s", gameState.Player1.Username),
@@ -184,6 +140,36 @@ func wsJoinGame(conn *websocket.Conn, request Request) {
 		}
 	}
 	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "No available games to join"}))
+}
+
+func joinGame(gameState *gamelogic.GameState, player *gamelogic.Player, conn *websocket.Conn, request Request, id uuid.UUID) {
+	*player = request.User                      // Add the user as the given player
+	for _, botName := range request.TeamNames { // Add the user's team
+		bot := gamelogic.MakeBot(gamelogic.BotType(botName))
+		if bot != nil {
+			player.Team = append(player.Team, *bot)
+		}
+	}
+
+	activePlayers.sessions[conn] = id // Associate the connection with the session ID
+
+	gameState.BeginGame()
+	sendToAllPlayers(id, encoding.MakeJSONResponse(Response{
+		Type:    "gamestate",
+		Message: "Game Ready",
+		GameState: OutGameState{
+			Player1: OutPlayer{
+				Name: gameState.GetPlayerName(1),
+				Team: gameState.GetPlayerTeamNames(1),
+			},
+			Player2: OutPlayer{
+				Name: gameState.GetPlayerName(2),
+				Team: gameState.GetPlayerTeamNames(2),
+			},
+			P1Actives: gameState.P1ActiveBots,
+			P2Actives: gameState.P2ActiveBots,
+		},
+	}))
 }
 
 func wsLeaveGame(conn *websocket.Conn) {
