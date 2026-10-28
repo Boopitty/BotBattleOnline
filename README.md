@@ -102,20 +102,15 @@ Save your database's connection string into your `.env` file as the `DB_URL` var
 
 ## Startup
 
-The frontend and backend are started separately in different terminals. 
-There is a shell command file for each. Use `ctrl + c` to cancel them.
-
-### Server Startup
-
-Start the server first to avoid websocket issues.
+Use the following command from the project root to start the server:
 ```bash
 # Builds and runs backend server
 bash server.sh
 ```
 
-### Frontend Startup
+## Development Mode
 
-Start the frontend in a new terminal. Visit the given link.
+Use the following command from the project root to enter vite's develompent mode for the frontend:
 ```bash
 # Build and run the frontend
 bash bot-battle.sh
