@@ -102,18 +102,16 @@ Save your database's connection string into your `.env` file as the `DB_URL` var
 
 ## Startup
 
-Use the following command from the project root to start the server:
+Use the following shell command from the project root to start the server:
 ```bash
-# Builds and runs backend server
 bash server.sh
 ```
 
 ## Development Mode
 
-Use the following command from the project root to enter vite's develompent mode for the frontend:
+Use the following shell command from the project root to enter vite's develompent mode for the frontend:
 ```bash
-# Build and run the frontend
-bash bot-battle.sh
+bash devmode.sh
 ```
 
 ## Contributing

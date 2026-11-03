@@ -1,5 +1,3 @@
-# Launch server with dev frontend
-go build -o server ./server
-./server/server
+# Serve the bot-battle project in development mode
 cd ./bot-battle || exit 1
 npm run dev

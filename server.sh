@@ -1,4 +1,4 @@
-# Build server binary and run it
+# Build dist folder and server binary and run it
 cd ./bot-battle
 npm run build
 cd ..
