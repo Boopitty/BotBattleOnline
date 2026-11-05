@@ -19,7 +19,7 @@ async function initWebSocket() {
             switch (resp.type) {
                 case "gamestate":
                     window.Battle.printGamestate(resp.gamestate)
-                    window.Battle.beginBattle(resp.gamestate)
+                    window.Battle.displayBattle(resp.gamestate)
                     break;
             }
         } catch (error) {
@@ -60,6 +60,7 @@ function makeRequest (command, teamNames = [], input = 0) {
 }
 
 /**
+ * Send a request to the server via WebSocket.
  * @param {string} req - The request string in JSON format
  * @returns {Promise} - The response from the server
  */

@@ -6,7 +6,6 @@ import (
 
 	"github.com/Boopitty/BotBattleOnline/internal/encoding"
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -50,7 +49,15 @@ func Process(conn *websocket.Conn, req []byte) {
 		conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(response))
 		return
 	}
-	request.User.Conn = conn // Placing the connection into the request struct makes copying player objects easier for later logic.
+
+	// Add the user's team and connection to the request struct for later use
+	request.User.Conn = conn
+	for _, botName := range request.TeamNames {
+		bot := gamelogic.MakeBot(gamelogic.BotType(botName))
+		if bot != nil {
+			request.User.Team = append(request.User.Team, *bot)
+		}
+	}
 
 	switch request.Command {
 	case "new-game":
@@ -86,19 +93,5 @@ func Process(conn *websocket.Conn, req []byte) {
 			Message: fmt.Sprintf("Invalid command: %s", request.Command),
 		}))
 		return
-	}
-}
-
-func sendToAllPlayers(sessionID uuid.UUID, payload []byte) {
-	if gameState, exists := activeGames.sessions[sessionID]; exists {
-		gameState.Mu.RLock()
-		defer gameState.Mu.RUnlock()
-
-		if gameState.Player1.Conn != nil {
-			gameState.Player1.Conn.WriteMessage(websocket.TextMessage, payload)
-		}
-		if gameState.Player2.Conn != nil {
-			gameState.Player2.Conn.WriteMessage(websocket.TextMessage, payload)
-		}
 	}
 }

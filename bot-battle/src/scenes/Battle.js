@@ -35,7 +35,7 @@ export default class Battle extends Phaser.Scene
         console.log(gamestate);
     }
 
-    beginBattle (gamestate) {
+    displayBattle (gamestate) {
         for (const i in gamestate.p1Actives) {
             const botName = gamestate.p1Actives[i].name
             this.createAnim(botName, "Idle", 0, 1, -1, 2)

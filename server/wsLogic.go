@@ -109,67 +109,26 @@ func wsJoinGame(conn *websocket.Conn, request Request) {
 		}
 	}
 
-	found := false
 	// Find a game with an empty player slot and add the user to that game
-	for !found {
-		for id, gameState := range activeGames.sessions {
-			if gameState.Player1.Conn == nil {
-				gameState.Player1 = request.User // Add the user as Player 1
-				found = true
-				joinGame(gameState, &gameState.Player1, conn, request, id)
-
-				fmt.Printf("Player 1: %s joined Player 2: %s\n", request.User.Username, gameState.Player2.Username)
-
-				conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
-					Message: fmt.Sprintf("You have joined a game against Player 2: %s", gameState.Player2.Username),
-				}))
-				return
-
-			} else if gameState.Player2.Conn == nil {
-				gameState.Player2 = request.User // Add the user as Player 2
-				found = true
-				joinGame(gameState, &gameState.Player2, conn, request, id)
-
-				fmt.Printf("Player 2: %s joined Player 1: %s\n", request.User.Username, gameState.Player1.Username)
-
-				conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
-					Message: fmt.Sprintf("You have joined a game against Player 1: %s", gameState.Player1.Username),
-				}))
-				return
-			}
+	for id, gameState := range activeGames.sessions {
+		success := gameState.JoinGame(request.User)
+		if !success {
+			continue
 		}
+		activePlayers.sessions[conn] = id // Associate the connection with the session ID
+
+		sendToAll(id, encoding.MakeJSONResponse(Response{
+			Message: fmt.Sprintf("%s has joined the game", request.User.Username),
+		}))
+
+		// If both players are now present, begin the game
+		if gameState.Player1.Conn != nil && gameState.Player2.Conn != nil {
+			gameState.BeginGame()
+			sendGSToAll(id)
+		}
+		break
 	}
 	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "No available games to join"}))
-}
-
-func joinGame(gameState *gamelogic.GameState, player *gamelogic.Player, conn *websocket.Conn, request Request, id uuid.UUID) {
-	*player = request.User                      // Add the user as the given player
-	for _, botName := range request.TeamNames { // Add the user's team
-		bot := gamelogic.MakeBot(gamelogic.BotType(botName))
-		if bot != nil {
-			player.Team = append(player.Team, *bot)
-		}
-	}
-
-	activePlayers.sessions[conn] = id // Associate the connection with the session ID
-
-	gameState.BeginGame()
-	sendToAllPlayers(id, encoding.MakeJSONResponse(Response{
-		Type:    "gamestate",
-		Message: "Game Ready",
-		GameState: OutGameState{
-			Player1: OutPlayer{
-				Name: gameState.GetPlayerName(1),
-				Team: gameState.GetPlayerTeamNames(1),
-			},
-			Player2: OutPlayer{
-				Name: gameState.GetPlayerName(2),
-				Team: gameState.GetPlayerTeamNames(2),
-			},
-			P1Actives: gameState.P1ActiveBots,
-			P2Actives: gameState.P2ActiveBots,
-		},
-	}))
 }
 
 func wsLeaveGame(conn *websocket.Conn) {
@@ -177,18 +136,16 @@ func wsLeaveGame(conn *websocket.Conn) {
 		delete(activePlayers.sessions, conn)
 
 		if gameState, exists := activeGames.sessions[sessionID]; exists {
-			gameState.Mu.Lock()
-			defer gameState.Mu.Unlock()
-
-			if gameState.Player1.Conn == conn {
-				gameState.Player1 = gamelogic.Player{}
-			} else if gameState.Player2.Conn == conn {
-				gameState.Player2 = gamelogic.Player{}
-			}
+			gameState.LeaveGame(conn) // Remove the player from the game state
+			sendToAll(sessionID, encoding.MakeJSONResponse(Response{
+				Message: "A player has left the game",
+			}))
 
 			// If both players have left, remove the game state from sessions
 			if gameState.Player1.Conn == nil && gameState.Player2.Conn == nil {
 				delete(activeGames.sessions, sessionID)
+			} else {
+				sendGSToAll(sessionID)
 			}
 		}
 		conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "You have left the game"}))
@@ -215,4 +172,53 @@ func wsGetTeams(conn *websocket.Conn) {
 		conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "Game state not found"}))
 	}
 	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "You are not currently in a game"}))
+}
+
+func sendToAll(sessionID uuid.UUID, payload []byte) {
+	if gameState, exists := activeGames.sessions[sessionID]; exists {
+		gameState.Mu.RLock()
+		defer gameState.Mu.RUnlock()
+
+		if gameState.Player1.Conn != nil {
+			gameState.Player1.Conn.WriteMessage(websocket.TextMessage, payload)
+		}
+		if gameState.Player2.Conn != nil {
+			gameState.Player2.Conn.WriteMessage(websocket.TextMessage, payload)
+		}
+	}
+}
+
+func sendGSToAll(sessionID uuid.UUID) {
+	if gameState, exists := activeGames.sessions[sessionID]; exists {
+		gameState.Mu.RLock()
+		defer gameState.Mu.RUnlock()
+
+		response := Response{
+			Type:    "gamestate",
+			Message: "Game State Update",
+			GameState: OutGameState{
+				Player1: OutPlayer{
+					Name: gameState.GetPlayerName(1),
+					Team: gameState.GetPlayerTeamNames(1),
+				},
+				Player2: OutPlayer{
+					Name: gameState.GetPlayerName(2),
+					Team: gameState.GetPlayerTeamNames(2),
+				},
+				P1Actives: gameState.P1ActiveBots,
+				P2Actives: gameState.P2ActiveBots,
+			},
+		}
+		payload := encoding.MakeJSONResponse(response)
+
+		if gameState.Player1.Conn != nil {
+			gameState.Player1.Conn.WriteMessage(websocket.TextMessage, payload)
+		}
+		if gameState.Player2.Conn != nil {
+			gameState.Player2.Conn.WriteMessage(websocket.TextMessage, payload)
+		}
+		for _, spectatorConn := range gameState.Spectators {
+			spectatorConn.WriteMessage(websocket.TextMessage, payload)
+		}
+	}
 }

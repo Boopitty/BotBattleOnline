@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Boopitty/BotBattleOnline/internal/gamelogic"
+	"github.com/gorilla/websocket"
 )
 
 func TestNewPlayer(t *testing.T) {
@@ -44,7 +45,7 @@ func TestNewGameState(t *testing.T) {
 			want: &gamelogic.GameState{
 				Player1:      gamelogic.Player{},
 				Player2:      gamelogic.Player{},
-				Spectators:   make([]gamelogic.Player, 0),
+				Spectators:   make([]*websocket.Conn, 0),
 				P1ActiveBots: make([]*gamelogic.Bot, 0, 2),
 				P2ActiveBots: make([]*gamelogic.Bot, 0, 2),
 				Turn:         0,

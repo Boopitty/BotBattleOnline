@@ -40,7 +40,7 @@ func handleWS() func(http.ResponseWriter, *http.Request) {
 				break
 			}
 			log.Println("Received message:", string(msg))
-			go Process(conn, msg)
+			Process(conn, msg)
 		}
 	}
 }
