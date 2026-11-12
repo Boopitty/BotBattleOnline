@@ -23,6 +23,15 @@ export default class Battle extends Phaser.Scene
         window.Battle = this;
         this.makeButtons();
 
+        // Set up a zone to display active bots, and dynamically change the bot sprites when the gamestate is received
+        this.p1Zone1 = this.add.container(194, 250);
+        this.p1Zone2 = this.add.container(194, 350);
+        this.p1Zone3 = this.add.container(194, 300);
+
+        this.p2Zone1 = this.add.container(800, 250);
+        this.p2Zone2 = this.add.container(800, 350);
+        this.p2Zone3 = this.add.container(800, 300);
+
         // Handle the flag sprite
         this.createAnim("Flag", "Idle", 0, 5, -1, 6);
         this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
@@ -31,20 +40,53 @@ export default class Battle extends Phaser.Scene
         }); 
     }
 
+    clearAllZones () {
+        this.p1Zone1.removeAll(true);
+        this.p1Zone2.removeAll(true);
+        this.p1Zone3.removeAll(true);
+        this.p2Zone1.removeAll(true);
+        this.p2Zone2.removeAll(true);
+        this.p2Zone3.removeAll(true);
+    }
+
     printGamestate (gamestate) {
         console.log(gamestate);
     }
 
     displayBattle (gamestate) {
-        for (const i in gamestate.p1Actives) {
-            const botName = gamestate.p1Actives[i].name
-            this.createAnim(botName, "Idle", 0, 1, -1, 2)
-            this.add.sprite(194, 250 + (i * 100), botName).play(`${botName}_Idle`).setScale(10);
+        if (!gamestate) {
+            console.warn("No gamestate received.");
+            return;
         }
-        for (const i in gamestate.p2Actives) {
-            const botName = gamestate.p2Actives[i].name
-            this.createAnim(botName, "Idle", 0, 1, -1, 2)
-            this.add.sprite(800, 250 + (i * 100), botName).play(`${botName}_Idle`).setScale(10).setFlip(true, false);
+        this.clearAllZones();
+
+        // Create animations for all active bots
+        gamestate.p1Actives.forEach(bot => {
+            this.createAnim(bot.name, "Idle", 0, 1, -1, 2);
+        });
+        gamestate.p2Actives.forEach(bot => {
+            this.createAnim(bot.name, "Idle", 0, 1, -1, 2);
+        });
+
+        // Display the active bots for each player
+        if (gamestate.p1Actives.length === 1) {
+            const bot = this.add.sprite(0, 0, gamestate.p1Actives[0].name).play(`${gamestate.p1Actives[0].name}_Idle`).setScale(10)
+            this.p1Zone3.add(bot);
+        } else if (gamestate.p1Actives.length === 2) {
+            const bot1 = this.add.sprite(0, 0, gamestate.p1Actives[0].name).play(`${gamestate.p1Actives[0].name}_Idle`).setScale(10)
+            const bot2 = this.add.sprite(0, 0, gamestate.p1Actives[1].name).play(`${gamestate.p1Actives[1].name}_Idle`).setScale(10)
+            this.p1Zone1.add(bot1);
+            this.p1Zone2.add(bot2);
+        }
+
+        if (gamestate.p2Actives.length === 1) {
+            const bot = this.add.sprite(0, 0, gamestate.p2Actives[0].name).play(`${gamestate.p2Actives[0].name}_Idle`).setScale(10).setFlip(true, false)
+            this.p2Zone3.add(bot);
+        } else if (gamestate.p2Actives.length === 2) {
+            const bot1 = this.add.sprite(0, 0, gamestate.p2Actives[0].name).play(`${gamestate.p2Actives[0].name}_Idle`).setScale(10).setFlip(true, false)
+            const bot2 = this.add.sprite(0, 0, gamestate.p2Actives[1].name).play(`${gamestate.p2Actives[1].name}_Idle`).setScale(10).setFlip(true, false)
+            this.p2Zone1.add(bot1);
+            this.p2Zone2.add(bot2);
         }
     }
 
@@ -73,6 +115,7 @@ export default class Battle extends Phaser.Scene
             'leave',
             () => {
                 sendRequest(makeRequest("leave-game"));
+                this.clearAllZones();
             }
         );
 
