@@ -26,11 +26,11 @@ export default class Battle extends Phaser.Scene
         // Set up a zone to display active bots, and dynamically change the bot sprites when the gamestate is received
         this.p1Zone1 = this.add.container(194, 250);
         this.p1Zone2 = this.add.container(194, 350);
-        this.p1Zone3 = this.add.container(194, 300);
+        this.p1HugeZone = this.add.container(194, 300);
 
         this.p2Zone1 = this.add.container(800, 250);
         this.p2Zone2 = this.add.container(800, 350);
-        this.p2Zone3 = this.add.container(800, 300);
+        this.p2HugeZone = this.add.container(800, 300);
 
         // Handle the flag sprite
         this.createAnim("Flag", "Idle", 0, 5, -1, 6);
@@ -43,10 +43,10 @@ export default class Battle extends Phaser.Scene
     clearAllZones () {
         this.p1Zone1.removeAll(true);
         this.p1Zone2.removeAll(true);
-        this.p1Zone3.removeAll(true);
+        this.p1HugeZone.removeAll(true);
         this.p2Zone1.removeAll(true);
         this.p2Zone2.removeAll(true);
-        this.p2Zone3.removeAll(true);
+        this.p2HugeZone.removeAll(true);
     }
 
     printGamestate (gamestate) {
@@ -71,7 +71,7 @@ export default class Battle extends Phaser.Scene
         // Display the active bots for each player
         if (gamestate.p1Actives.length === 1) {
             const bot = this.add.sprite(0, 0, gamestate.p1Actives[0].name).play(`${gamestate.p1Actives[0].name}_Idle`).setScale(10)
-            this.p1Zone3.add(bot);
+            this.p1HugeZone.add(bot);
         } else if (gamestate.p1Actives.length === 2) {
             const bot1 = this.add.sprite(0, 0, gamestate.p1Actives[0].name).play(`${gamestate.p1Actives[0].name}_Idle`).setScale(10)
             const bot2 = this.add.sprite(0, 0, gamestate.p1Actives[1].name).play(`${gamestate.p1Actives[1].name}_Idle`).setScale(10)
@@ -81,7 +81,7 @@ export default class Battle extends Phaser.Scene
 
         if (gamestate.p2Actives.length === 1) {
             const bot = this.add.sprite(0, 0, gamestate.p2Actives[0].name).play(`${gamestate.p2Actives[0].name}_Idle`).setScale(10).setFlip(true, false)
-            this.p2Zone3.add(bot);
+            this.p2HugeZone.add(bot);
         } else if (gamestate.p2Actives.length === 2) {
             const bot1 = this.add.sprite(0, 0, gamestate.p2Actives[0].name).play(`${gamestate.p2Actives[0].name}_Idle`).setScale(10).setFlip(true, false)
             const bot2 = this.add.sprite(0, 0, gamestate.p2Actives[1].name).play(`${gamestate.p2Actives[1].name}_Idle`).setScale(10).setFlip(true, false)

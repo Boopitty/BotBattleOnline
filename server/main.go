@@ -47,7 +47,6 @@ func main() {
 	mux.HandleFunc("POST /api/createUser", cfg.handleCreateUser)
 	mux.HandleFunc("POST /api/login", cfg.handleLogin)
 	mux.HandleFunc("DELETE /api/deleteUser", cfg.handleDeleteUser)
-	mux.HandleFunc("DELETE /api/resetUsers", cfg.handleReset)
 	mux.HandleFunc("GET /api/getBot", cfg.handleGetBot)
 	mux.HandleFunc("POST /api/saveTeam", cfg.handleSaveTeam)
 	mux.HandleFunc("GET /api/getTeamNames", cfg.handleGetTeamNames)
@@ -58,6 +57,7 @@ func main() {
 	mux.HandleFunc("GET /admin/getNumBots", cfg.handleGetNumBots)
 	mux.HandleFunc("GET /admin/getNumGames", cfg.handleGetNumGames)
 	mux.HandleFunc("GET /admin/getCurrentPlayers", cfg.handleGetCurrentPlayers)
+	mux.HandleFunc("DELETE /admin/resetUsers", cfg.handleReset)
 
 	// create the server object
 	srv := &http.Server{

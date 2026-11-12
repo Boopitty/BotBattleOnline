@@ -28,6 +28,7 @@ type OutGameState struct {
 	Player2   OutPlayer        `json:"player2"`
 	P1Actives []*gamelogic.Bot `json:"p1Actives"`
 	P2Actives []*gamelogic.Bot `json:"p2Actives"`
+	Finished  bool             `json:"finished"`
 }
 
 // Struct to be returned to a client

@@ -207,6 +207,7 @@ func sendGSToAll(sessionID uuid.UUID) {
 				},
 				P1Actives: gameState.P1ActiveBots,
 				P2Actives: gameState.P2ActiveBots,
+				Finished:  gameState.IsGameOver(),
 			},
 		}
 		payload := encoding.MakeJSONResponse(response)
