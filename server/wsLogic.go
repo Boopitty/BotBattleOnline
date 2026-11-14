@@ -42,9 +42,8 @@ func wsNewGame(conn *websocket.Conn, request Request) {
 		}
 	}
 
-	// Create new unique session ID
 	var sessionID uuid.UUID
-	for { // Ensure there are no duplicates
+	for { // Ensure there are no duplicates for the session ID
 		sessionID = uuid.New()
 		_, exists := activeGames.sessions[sessionID]
 		if exists {
@@ -56,20 +55,10 @@ func wsNewGame(conn *websocket.Conn, request Request) {
 
 	// Store the gameState in a global variable and associate the connection with the session
 	activeGames.sessions[sessionID] = gamelogic.NewGameState()
-
-	// Set the user as Player 1 in the game state and add their team
-	activeGames.sessions[sessionID].Player1 = request.User
-	for _, botName := range request.TeamNames {
-		bot := gamelogic.MakeBot(gamelogic.BotType(botName))
-		if bot != nil {
-			activeGames.sessions[sessionID].Player1.Team = append(activeGames.sessions[sessionID].Player1.Team, *bot)
-		}
-	}
+	activeGames.sessions[sessionID].JoinGame(request.User)
 
 	// Associate the connection with the session ID
 	activePlayers.sessions[conn] = sessionID
-
-	fmt.Printf("New game started by player: %s\n", request.User.Username)
 
 	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
 		Message: fmt.Sprintf("New game started by player: %s", request.User.Username),
@@ -98,7 +87,7 @@ func wsJoinGame(conn *websocket.Conn, request Request) {
 	activeGames.mu.Lock()
 	defer activeGames.mu.Unlock()
 
-	// Check if the user's connection is already associated with a game session in activeGames
+	// Check if a game session already has this connection associated with it
 	for id, gameState := range activeGames.sessions {
 		if gameState.Player1.Conn == conn || gameState.Player2.Conn == conn {
 			activePlayers.sessions[conn] = id // Re-associate the connection with the existing session ID
@@ -128,7 +117,12 @@ func wsJoinGame(conn *websocket.Conn, request Request) {
 		}
 		break
 	}
-	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "No available games to join"}))
+
+	if _, exists := activePlayers.sessions[conn]; !exists {
+		conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
+			Message: "No available games to join",
+		}))
+	}
 }
 
 func wsLeaveGame(conn *websocket.Conn) {
@@ -136,44 +130,26 @@ func wsLeaveGame(conn *websocket.Conn) {
 		delete(activePlayers.sessions, conn)
 
 		if gameState, exists := activeGames.sessions[sessionID]; exists {
-			gameState.LeaveGame(conn) // Remove the player from the game state
+			gameState.LeaveGame(conn)
 			sendToAll(sessionID, encoding.MakeJSONResponse(Response{
 				Message: "A player has left the game",
 			}))
 
 			// If both players have left, remove the game state from sessions
 			if gameState.Player1.Conn == nil && gameState.Player2.Conn == nil {
+				sendGSToAll(sessionID)
 				delete(activeGames.sessions, sessionID)
 			} else {
 				sendGSToAll(sessionID)
 			}
 		}
 		conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "You have left the game"}))
+		return
 	}
 	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "You are not currently in a game"}))
 }
 
-func wsGetTeams(conn *websocket.Conn) {
-	if sessionID, exists := activePlayers.sessions[conn]; exists {
-		if gameState, exists := activeGames.sessions[sessionID]; exists {
-			gameState.Mu.RLock()
-			defer gameState.Mu.RUnlock()
-
-			// Return the teams of both players
-			conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{
-				Message: "Teams retrieved successfully",
-				Output: map[string]gamelogic.Player{
-					"player1": gameState.Player1,
-					"player2": gameState.Player2,
-				},
-			}))
-			return
-		}
-		conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "Game state not found"}))
-	}
-	conn.WriteMessage(websocket.TextMessage, encoding.MakeJSONResponse(Response{Message: "You are not currently in a game"}))
-}
-
+// Send payload to all players in a session
 func sendToAll(sessionID uuid.UUID, payload []byte) {
 	if gameState, exists := activeGames.sessions[sessionID]; exists {
 		gameState.Mu.RLock()
@@ -188,6 +164,7 @@ func sendToAll(sessionID uuid.UUID, payload []byte) {
 	}
 }
 
+// Send game state to all players and spectators in a session
 func sendGSToAll(sessionID uuid.UUID) {
 	if gameState, exists := activeGames.sessions[sessionID]; exists {
 		gameState.Mu.RLock()
@@ -207,6 +184,8 @@ func sendGSToAll(sessionID uuid.UUID) {
 				},
 				P1Actives: gameState.P1ActiveBots,
 				P2Actives: gameState.P2ActiveBots,
+				P1Idle:    gameState.GetIdleNames(1),
+				P2Idle:    gameState.GetIdleNames(2),
 				Finished:  gameState.IsGameOver(),
 			},
 		}

@@ -20,9 +20,6 @@ async function initWebSocket() {
                 case "gamestate":
                     window.Battle.printGamestate(resp.gamestate)
                     window.Battle.displayBattle(resp.gamestate)
-                    if (resp.gamestate.finished) {
-                        console.log("Game finished.");
-                    }
                     break;
             }
         } catch (error) {

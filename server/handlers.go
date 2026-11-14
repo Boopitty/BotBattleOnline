@@ -35,11 +35,10 @@ func handleWS() func(http.ResponseWriter, *http.Request) {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				log.Printf("error reading message: %v", err)
-				log.Printf("Leaving Game")
-				go Process(conn, []byte(`{"command":"leave-game"}`)) // Ensure the player leaves the game when the connection is closed
+				Process(conn, []byte(`{"command":"leave-game"}`)) // Ensure the player leaves the game when the connection is closed
 				break
 			}
-			log.Println("Received message:", string(msg))
+			log.Println("Received websocket message:", string(msg))
 			Process(conn, msg)
 		}
 	}
@@ -341,8 +340,6 @@ func (c *config) handleGetTeamNames(w http.ResponseWriter, r *http.Request) {
 		encoding.RespondWithError(w, http.StatusInternalServerError, fmt.Errorf("Internal Error"))
 		return
 	}
-
-	log.Printf("Retrieved team for user %s:\n %v", userID, team)
 
 	response := struct {
 		Team []string `json:"team"`

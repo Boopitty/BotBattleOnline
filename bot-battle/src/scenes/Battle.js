@@ -23,6 +23,13 @@ export default class Battle extends Phaser.Scene
         window.Battle = this;
         this.makeButtons();
 
+        // Handle the flag sprite
+        this.createAnim("Flag", "Idle", 0, 5, -1, 6);
+        this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
+        this.flag.setInteractive().on('pointerup', () => {
+            sendRequest(makeRequest("join-game", this.team));
+        }); 
+
         // Set up a zone to display active bots, and dynamically change the bot sprites when the gamestate is received
         this.p1Zone1 = this.add.container(194, 250);
         this.p1Zone2 = this.add.container(194, 350);
@@ -32,12 +39,9 @@ export default class Battle extends Phaser.Scene
         this.p2Zone2 = this.add.container(800, 350);
         this.p2HugeZone = this.add.container(800, 300);
 
-        // Handle the flag sprite
-        this.createAnim("Flag", "Idle", 0, 5, -1, 6);
-        this.flag = this.add.sprite(524, 564, 'Flag').play('Flag_Idle').setScale(5);
-        this.flag.setInteractive().on('pointerup', () => {
-            sendRequest(makeRequest("join-game", this.team));
-        }); 
+        // Set up a zone to display idle bots, and dynamically change the bot sprites when the gamestate is received
+        this.p1IdleZones = this.add.container(194, 600);
+        this.p2IdleZones = this.add.container(800, 700);
     }
 
     clearAllZones () {
@@ -47,8 +51,10 @@ export default class Battle extends Phaser.Scene
         this.p2Zone1.removeAll(true);
         this.p2Zone2.removeAll(true);
         this.p2HugeZone.removeAll(true);
+        this.p1IdleZones.removeAll(true);
+        this.p2IdleZones.removeAll(true);
     }
-
+ 
     printGamestate (gamestate) {
         console.log(gamestate);
     }
@@ -58,7 +64,15 @@ export default class Battle extends Phaser.Scene
             console.warn("No gamestate received.");
             return;
         }
+
         this.clearAllZones();
+        if (gamestate.finished) {
+            console.log("Game finished.");
+            this.flag.setVisible(true);
+            return;
+        } else {
+            this.flag.setVisible(false);
+        }
 
         // Create animations for all active bots
         gamestate.p1Actives.forEach(bot => {
@@ -66,6 +80,34 @@ export default class Battle extends Phaser.Scene
         });
         gamestate.p2Actives.forEach(bot => {
             this.createAnim(bot.name, "Idle", 0, 1, -1, 2);
+        });
+
+        // Display the idle bots for each player
+        gamestate.p1Idle.forEach((botName, index) => {
+            this.createAnim(botName, "Idle", 0, 1, -1, 2);
+            const idleBot = this.add.sprite(0, 0, botName).setScale(5).setInteractive()
+                .on('pointerover', () => {
+                    idleBot.play(`${botName}_Idle`)
+                })
+                .on('pointerout', () => {
+                    idleBot.stop();
+                });
+
+            idleBot.setPosition(index * 100, 0);
+            this.p1IdleZones.add(idleBot);
+        });
+
+        gamestate.p2Idle.forEach((botName, index) => {
+            this.createAnim(botName, "Idle", 0, 1, -1, 2);
+            const idleBot = this.add.sprite(0, 0, botName).setScale(5).setFlip(true, false).setInteractive()
+                .on('pointerover', () => {
+                    idleBot.play(`${botName}_Idle`)
+                })
+                .on('pointerout', () => {
+                    idleBot.stop();
+                });
+            idleBot.setPosition(index * -100, 0);
+            this.p2IdleZones.add(idleBot);
         });
 
         // Display the active bots for each player
@@ -116,6 +158,7 @@ export default class Battle extends Phaser.Scene
             () => {
                 sendRequest(makeRequest("leave-game"));
                 this.clearAllZones();
+                this.flag.setVisible(true);
             }
         );
 

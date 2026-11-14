@@ -20,23 +20,24 @@ type Request struct {
 }
 
 type OutPlayer struct {
-	Name string   `json:"name"`
 	Team []string `json:"team"`
+	Name string   `json:"name"`
 }
 type OutGameState struct {
 	Player1   OutPlayer        `json:"player1"`
 	Player2   OutPlayer        `json:"player2"`
 	P1Actives []*gamelogic.Bot `json:"p1Actives"`
 	P2Actives []*gamelogic.Bot `json:"p2Actives"`
+	P1Idle    []string         `json:"p1Idle"`
+	P2Idle    []string         `json:"p2Idle"`
 	Finished  bool             `json:"finished"`
 }
 
 // Struct to be returned to a client
 type Response struct {
+	GameState OutGameState `json:"gamestate"`
 	Type      string       `json:"type"`
 	Message   string       `json:"message"`
-	GameState OutGameState `json:"gamestate"`
-	Output    any          `json:"output"`
 }
 
 // Process websocket requests
@@ -71,10 +72,6 @@ func Process(conn *websocket.Conn, req []byte) {
 
 	case "leave-game":
 		wsLeaveGame(conn)
-		return
-
-	case "get-teams":
-		wsGetTeams(conn)
 		return
 
 	case "spectate":
